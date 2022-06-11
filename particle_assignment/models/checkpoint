@@ -1,0 +1,2 @@
+model_checkpoint_path: "particle_assignment_model"
+all_model_checkpoint_paths: "particle_assignment_model"
