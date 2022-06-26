@@ -241,12 +241,13 @@ The data of the chosen permutation is then saved to a file to be used in the mas
 
 # Narrow ttH, ttZ.
 
-#ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
-#file_name_endings = ["train_ttH","val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
+# FIX THIS
+# ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
+# file_name_endings = ["train_ttH","val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
 # ids_list = [test_ids_ttH, test_ids_ttZ]
 # file_name_endings = ["test_ttH","test_ttZ"]
-ids_list = [test_ids_ttH]
-file_name_endings = ["test_ttH"]
+ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH]
+file_name_endings = ["train_ttH","val_ttH","test_ttH"]
 
 for ids,ending in zip(ids_list,file_name_endings):
 	""" One generator for obtaining the probability vectors. Second generator to obtain the precise data we want to save to the file. """
