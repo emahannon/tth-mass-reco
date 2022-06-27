@@ -28,6 +28,29 @@ from constants import column_labels_particle_assignment_btags as column_names
 
 # In[17]:
 
+"""Added by Emily. Feature importance function."""
+def get_feature_importance(test, model, Signal_Cut, n):
+    f = []
+    g = []
+    y_pred = model.predict(test[0])
+    y_pred[y_pred > Signal_Cut] = 1
+    y_pred[y_pred <= Signal_Cut] = 0
+    s = sklearn.metrics.accuracy_score(test[1], y_pred) # added sklearn.metrics here
+    for j in range(test[0].shape[1]):
+        total = []
+        for i in range(n):
+            perm = np.random.permutation(range(test[0].shape[0]))
+            X_test_ = test[0].copy()
+            X_test_[:, j] = test[0][perm, j]
+            y_pred_ = model.predict(X_test_)
+            y_pred_[y_pred_ > Signal_Cut] = 1
+            y_pred_[y_pred_ <= Signal_Cut] = 0
+            s_ij = sklearn.metrics.accuracy_score(test[1], y_pred_)
+            total.append(s_ij)
+        total = np.array(total)
+        f.append(s - total.mean())
+        g.append(total.std())
+    return f, g
 
 """ Data augmentation functions. Rotate all particles of an event (or a permutation of an event)
 	by a random angle. """
@@ -204,12 +227,6 @@ with open("../data/particle_assignment_training_data/val_ids_ttH.csv") as f:
 # test_ids = np.concatenate((test_ids_ttH,test_ids_ttZ), axis = 0)
 # val_ids = np.concatenate((val_ids_ttH,val_ids_ttZ), axis = 0)
 # lines = np.concatenate((lines_ttH,lines_ttZ), axis = 0)
-
-# NEXT FOUR LINES COMMENTED OUT BY EMILY,, THROWING ERRORS
-# train_ids = np.concatenate((train_ids_ttH), axis = 0)
-# test_ids = np.concatenate((test_ids_ttH), axis = 0)
-# val_ids = np.concatenate((val_ids_ttH), axis = 0)
-# lines = np.concatenate((lines_ttH), axis = 0)
 
 # NEXT FOUR LINES ADDED BY EMILY
 train_ids = train_ids_ttH
@@ -456,7 +473,18 @@ model.save_weights(initial_weights)
 
 
 """ Training. """
-history = model.fit(training_generator, validation_data=validation_generator, epochs=5, verbose=1, callbacks=[callback1,callback2])
+# INCREASE EPOCHS AFTER CODE TESTING IS DONE
+history = model.fit(training_generator, validation_data=validation_generator, epochs=1, verbose=1, callbacks=[callback1,callback2])
+
+# feature importance obtained by logistic regression coefficients
+importances = pd.DataFrame(data={
+    'Attribute': train_ids[0, : ],
+    'Importance': model.coef_[0]
+})
+plt.bar(x=importances['Attribute'], height=importances['Importance'], color='#087E8B')
+plt.title('Feature importances obtained from coefficients', size=20)
+plt.xticks(rotation='vertical')
+plt.savefig('figures/PA_FeatureImportance.pdf')
 
 
 # In[49]:
@@ -556,3 +584,12 @@ plt.show()
 
 for i in range(5):
 	print(matthews_correlation(y_test[:,i].astype('float32'),test_predictions_baseline[:,i].astype('float32')))
+
+"""Added by Emily. Feature importance."""
+# f, g = get_feature_importance(y_test, model, Signal_Cut, 3)
+# idx = np.argsort(f)
+# fig, ax = plt.subplots(figsize=(20, 10))
+# ax.barh(range(y_test[0].shape[1]), np.sort(f), xerr=np.array(g)[idx], color="r", alpha=0.7, ecolor='black', capsize=10)
+# ax.set_yticks(range(y_train[0].shape[1]), np.array(feature_names)[idx])
+# ax.set_xlabel('Feature Importance')
+# plt.savefig("/Feature_Importance.png")

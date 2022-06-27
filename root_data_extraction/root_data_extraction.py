@@ -526,6 +526,8 @@ def generate_variables_to_write(event_permutations):
 		event_to_write += [main.Px(), main.Py(), main.Pz(), main.E()]   # higgs
 		events_to_write.append(event_to_write)
 		labels_to_write.append(event_permutation.label)
+		print(events_to_write)
+		print(labels_to_write)
 	return events_to_write, labels_to_write
 
 def write_events_to_file(id,ids,labels_dict,labels_to_write,data_to_write,output_folder):

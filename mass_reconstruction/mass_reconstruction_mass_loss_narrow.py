@@ -538,10 +538,11 @@ gauss_fit_2.SetParameters(1, 1, 1)
 ttH = root.TH1F("ttH","",20,80,140)
 root_numpy.fill_hist(ttH, ttH_y_pred.flatten()/1000)
 
-weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
+# weights are only necessary if you have ttZ information
+# weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
 
-ttZ = root.TH1F("ttZ","",20,80,140)
-root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
+# ttZ = root.TH1F("ttZ","",20,80,140)
+# root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
 
 fig, ax = aplt.subplots(1, 1)
 
@@ -549,8 +550,8 @@ ttH.Fit("gauss_fit_2","0")
 gauss_fit_2.SetNpx(1000)
 #ax.plot(gauss_fit_2, label="Fit", labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
-ttZ.Fit("gauss_fit_1","0")
-gauss_fit_1.SetNpx(1000)
+# ttZ.Fit("gauss_fit_1","0")
+# gauss_fit_1.SetNpx(1000)
 #ax.plot(gauss_fit_1, label=None, labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
 ttH_fit = ttH.GetFunction("gauss_fit_2")
