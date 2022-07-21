@@ -12,6 +12,7 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
+from sklearn.inspection import permutation_importance
 import tensorflow as tf
 import time
 import pandas as pd
@@ -28,29 +29,29 @@ from constants import column_labels_particle_assignment_btags as column_names
 
 # In[17]:
 
-"""Added by Emily. Feature importance function."""
-def get_feature_importance(test, model, Signal_Cut, n):
-    f = []
-    g = []
-    y_pred = model.predict(test[0])
-    y_pred[y_pred > Signal_Cut] = 1
-    y_pred[y_pred <= Signal_Cut] = 0
-    s = sklearn.metrics.accuracy_score(test[1], y_pred) # added sklearn.metrics here
-    for j in range(test[0].shape[1]):
-        total = []
-        for i in range(n):
-            perm = np.random.permutation(range(test[0].shape[0]))
-            X_test_ = test[0].copy()
-            X_test_[:, j] = test[0][perm, j]
-            y_pred_ = model.predict(X_test_)
-            y_pred_[y_pred_ > Signal_Cut] = 1
-            y_pred_[y_pred_ <= Signal_Cut] = 0
-            s_ij = sklearn.metrics.accuracy_score(test[1], y_pred_)
-            total.append(s_ij)
-        total = np.array(total)
-        f.append(s - total.mean())
-        g.append(total.std())
-    return f, g
+# """Added by Emily. Feature importance function."""
+# def get_feature_importance(test, model, Signal_Cut, n):
+# 	f = []
+# 	g = []
+# 	y_pred = model.predict(test[0])
+# 	y_pred[y_pred > Signal_Cut] = 1
+# 	y_pred[y_pred <= Signal_Cut] = 0
+# 	s = sklearn.metrics.accuracy_score(test[1], y_pred) # added sklearn.metrics here
+# 	for j in range(test[0].shape[1]):
+# 		total = []
+# 		for i in range(n):
+# 			perm = np.random.permutation(range(test[0].shape[0]))
+# 			X_test_ = test[0].copy()
+# 			X_test_[:, j] = test[0][perm, j]
+# 			y_pred_ = model.predict(X_test_)
+# 			y_pred_[y_pred_ > Signal_Cut] = 1
+# 			y_pred_[y_pred_ <= Signal_Cut] = 0
+# 			s_ij = sklearn.metrics.accuracy_score(test[1], y_pred_)
+# 			total.append(s_ij)
+# 		total = np.array(total)
+# 		f.append(s - total.mean())
+# 		g.append(total.std())
+# 	return f, g
 
 """ Data augmentation functions. Rotate all particles of an event (or a permutation of an event)
 	by a random angle. """
@@ -155,20 +156,26 @@ class DataGenerator(keras.utils.Sequence):
 			# print(X.shape,np.load(self.data_path + str(int(ID)) + '.npy').shape)
 			X = np.concatenate((X,np.load(self.data_path + str(int(ID)) + '.npy')),axis=0)
 			y = np.concatenate((y,self.labels[str(int(ID))]),axis=0)
-		print("shape before:")
-		print(X.shape)
+		# print("shape before:")
+		# print(X)
+		# print(column_names)
 		X = X[1:,:column_names.index("true main px")]       # Get rid of the init row. Get rid of information you do not want to use (truth information).
+		global feature_names
+		feature_names = column_names
+		feature_names = feature_names[ :column_names.index("true main px")]
 
-		print(X.shape)
+		# print(X.shape)
 		y = y[1:,:]                                         # Get rid of the init row.
 
 		weights = np.reciprocal(X[:,-1])*200        # Sample weights are based on the number of permutations of an event - more permutations means smaller sample weight.
 		X = X[:,:-1]        # Get rid of weights column.
+		feature_names = feature_names[:-1]
 
 		if self.with_ids:
 			X = np.concatenate((X[:,0].reshape(len(X[:,0]),1),(X[:,1:]-self.scaler[0])/self.scaler[1]), axis = 1)   # Standardize everything except for EVENT IDS...
 		else:
 			X = X[:,1:]        # Get rid of EVENT ID column.
+			feature_names = feature_names[1:]
 
 		if self.augmentation:
 			X = data_rotation(X, num_vectors_X = 11, met = True)
@@ -176,11 +183,11 @@ class DataGenerator(keras.utils.Sequence):
 		if self.with_ids:
 			pass
 		else:
-			print("shape:")
+			# print("shape:")
 			# VV this has second dimension to be 65 but the other chapes are 67, is that part of the problem
 			# print(self.scaler.shape)
 			X = (X-self.scaler[0])/self.scaler[1]     # Standardize X=X
-		print(X.shape)
+		# print(X.shape)
 		return X, y, weights
 
 	def get_all(self):
@@ -271,16 +278,18 @@ for i in range(len(training_generator)):
 """ Get scaler params from training data. """
 
 # ONLY NEED TO TRAIN THIS ONCE PER TIME YOU HAVE NEW DATA
-# X_train = np.empty((num_samples,61), dtype=float)
-# c = 0
-#
-# for i in range(len(training_generator)):
-# 	rows = len(training_generator[i][0][:])
-#
-# 	X_train[c:c+rows,:] = training_generator[i][0][:]
-# 	c += rows
-#
-# X_train = X_train[1:,:]
+X_train = np.empty((num_samples,61), dtype=float)
+c = 0
+
+for i in range(len(training_generator)):
+	rows = len(training_generator[i][0][:])
+
+	X_train[c:c+rows,:] = training_generator[i][0][:]
+	c += rows
+
+X_train = X_train[1:,:]
+print("XTRAIN SIZE")
+print(X_train.shape)
 # scaler = StandardScaler()
 # scaler.fit(X_train)
 #
@@ -304,6 +313,8 @@ for i in range(len(training_generator)):
 	c += rows
 
 y_train = y_train[1:,:]
+print("PRINTING y_train")
+print(y_train)
 
 correct = np.count_nonzero(y_train, axis=0)
 incorrect = np.ones(5)*y_train.shape[0] - correct
@@ -415,7 +426,6 @@ def lep_assignment_model(num_features=42, bias = None):
 
 	i = keras.Input(shape = (num_features,))
 
-	print("made it to here \n")
 	dropout_1 = Dropout(0.2)(i)
 	dense_1 = Dense(500, kernel_regularizer=l2(0.00001), bias_regularizer=l2(0.00001))(dropout_1)
 	relu_1 = Activation(activations.relu)(dense_1)
@@ -471,18 +481,46 @@ model.save_weights(initial_weights)
 
 # In[46]:
 
-
+print("PRINTING TRAINING GENERATOR")
+print(dir(training_generator))
 """ Training. """
 # INCREASE EPOCHS AFTER CODE TESTING IS DONE
 history = model.fit(training_generator, validation_data=validation_generator, epochs=1, verbose=1, callbacks=[callback1,callback2])
 
 # feature importance obtained by logistic regression coefficients
-importances = pd.DataFrame(data={
-    'Attribute': train_ids[0, : ],
-    'Importance': model.coef_[0]
+# we need to get the names of all the features based on all the modifications from above
+# we should be able to use permutation feature importance regardless of the type of model being used
+	# this should be what martin was talking about where you train on only one feature
+# importances = pd.DataFrame(data={
+#     'Attribute': feature_names,
+#     'Importance': model.coef_[0]
+# })
+# NOT SURE IF TRAINING GENERATOR IS THE RIGH VAR TO USE AS THE PARAMETER
+# n_batches = len(training_generator)
+# y_train = np.concatenate([training_generator[i][1] for i in range(n_batches)])
+# print("y_train")
+# print(y_train)
+
+# FEATURE IMPORTANCE
+# takes ~1 hour to run, comment out unless you need it
+print("training finished, calculating feature importance...\n")
+print("feature names")
+print(len(feature_names))
+feature_nums = range(len(feature_names))
+print(feature_nums)
+results = permutation_importance(model, X_train, y_train, scoring='neg_mean_squared_error', n_repeats=1)
+importances = results.importances_mean
+print(importances.dtype)
+print(importances)
+importances_pd = pd.DataFrame(data={
+	'Attribute': feature_nums,
+	'Importance': importances
 })
-plt.bar(x=importances['Attribute'], height=importances['Importance'], color='#087E8B')
-plt.title('Feature importances obtained from coefficients', size=20)
+importances_pd.Attribute = pd.to_numeric(importances_pd.Attribute, errors='coerce')
+importances_pd = importances_pd.sort_values(by='Importance', ascending=False)
+plt.bar(x=importances_pd['Attribute'], height=importances_pd['Importance'], color='#087E8B')
+# plt.bar([x for x in range(len(importances))], importances)
+plt.title('Feature Importances Obtained by Permutation', size=10)
 plt.xticks(rotation='vertical')
 plt.savefig('figures/PA_FeatureImportance.pdf')
 
@@ -581,15 +619,6 @@ plt.show()
 
 # In[48]:
 
-
+print("MATTHEWS CORRELATION")
 for i in range(5):
 	print(matthews_correlation(y_test[:,i].astype('float32'),test_predictions_baseline[:,i].astype('float32')))
-
-"""Added by Emily. Feature importance."""
-# f, g = get_feature_importance(y_test, model, Signal_Cut, 3)
-# idx = np.argsort(f)
-# fig, ax = plt.subplots(figsize=(20, 10))
-# ax.barh(range(y_test[0].shape[1]), np.sort(f), xerr=np.array(g)[idx], color="r", alpha=0.7, ecolor='black', capsize=10)
-# ax.set_yticks(range(y_train[0].shape[1]), np.array(feature_names)[idx])
-# ax.set_xlabel('Feature Importance')
-# plt.savefig("/Feature_Importance.png")

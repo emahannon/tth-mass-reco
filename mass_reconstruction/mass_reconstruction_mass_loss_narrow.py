@@ -200,6 +200,16 @@ with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as
 	X_y_train_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
 # with open("data/mass_reco/mass_reco_input_narrow_selection_train_ttZ.csv") as f:
 # 	X_y_train_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
+with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as f:
+	train_ttH_features_reader = csv.reader(f, delimiter=",")
+	train_ttH_features=next(train_ttH_features_reader)
+	
+print("printing features:")
+print(train_ttH_features)
+print(" ")
+print("printing xytrain:")
+print(X_y_train_ttH)
+print("shape of xytrain:")
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv") as f:
 	X_y_test_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
@@ -220,6 +230,15 @@ X_y_train = X_y_train_ttH
 X_train = np.concatenate((X_y_train[:,:-10], X_y_train[:,-6:]), axis = 1)   # Seprate X ...
 y_train = X_y_train[:,-10:-6]                                               # ... and y.
 y_train_masses = np.empty((y_train.shape[0],1))                             # From y we will calculate masses - we use those as labels.
+
+# getting a list of features for ttH
+X_train_features = np.concatenate((train_ttH_features[:-10], train_ttH_features[-6:]), axis = 0)
+y_train_features = train_ttH_features[-10:-6] 
+
+print("PRINTING X TRAIN FEATURES")
+print(X_train_features)
+print("PRINTING Y TRAIN FEATURES")
+print(y_train_features)
 
 # # REMOVED TTZ RELAVENT INFORMATION FROM THE CODE ABOVE
 # X_y_train_ttH = add_weights(X_y_train_ttH)    # Add weights to the data
