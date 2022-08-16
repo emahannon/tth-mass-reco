@@ -704,6 +704,9 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 
 	id = int(1e06 * file_id + 1e04 * (main_particle_id if main_particle_id>0 else 42))
 
+	# YOU WILL PROBABLY HAVE TO RANDOMIZE THINGS SOMEWHERE HERE BECAUSE
+	# does event reco and event truth need to be on the same index? it looks like it
+
 	for i in range(len(events_reco)):
 		event_reco = events_reco[i]
 		event_truth = events_truth[i]
