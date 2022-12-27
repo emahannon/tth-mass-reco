@@ -7,6 +7,11 @@ from constants import *
 from os import listdir
 from os.path import isfile,isdir,join
 
+""" This code is intended to extract the ntuple (ttH, ttZ, ttW, tt...) data from
+	The raw ROOT files produced by CERN. This works specificially for simulation
+	data. For real data, see real_root_data_extraction.py
+	Note: some lines have been commented out where data is missing or non-essential."""
+
 def extract_main_particle_from_truth_event(event, main_particle_id):
 
 	truth_information = TruthEvent()
@@ -526,8 +531,8 @@ def generate_variables_to_write(event_permutations):
 		event_to_write += [main.Px(), main.Py(), main.Pz(), main.E()]   # higgs
 		events_to_write.append(event_to_write)
 		labels_to_write.append(event_permutation.label)
-		print(events_to_write)
-		print(labels_to_write)
+		# print(events_to_write)
+		# print(labels_to_write)
 	return events_to_write, labels_to_write
 
 def write_events_to_file(id,ids,labels_dict,labels_to_write,data_to_write,output_folder):
@@ -557,7 +562,7 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 
 	# used_ntuple_variables = ["jet_pseudoscore_DL1r0","jet_pseudoscore_DL1r1","jet_pseudoscore_DL1r2","jet_pseudoscore_DL1r3","jet_pseudoscore_DL1r4", \
 	# 						"nJets_OR_TauOR", "nJets_OR_DL1r_70", "l2SS1tau", "met_met", "met_phi", \
-	# 						"lep_Pt_0", "lep_E_0", "lep_Eta_0", "lep_Phi_0", \
+							 # "lep_Pt_0", "lep_E_0", "lep_Eta_0", "lep_Phi_0", \
 	# 						"lep_Pt_1", "lep_E_1", "lep_Eta_1", "lep_Phi_1", \
 	# 						"lep_Pt_2", "lep_E_2", "lep_Eta_2", "lep_Phi_2", \
 	# 						"taus_pt_0", "taus_E_0", "taus_eta_0", "taus_phi_0", \
@@ -575,24 +580,45 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 	# 						"RunYear", "custTrigSF_LooseID_FCLooseIso_DLT", "weight_pileup", "jvtSF_customOR", \
 	# 						"bTagSF_weight_DL1r_70", "weight_mc", "xs", "lep_SF_CombinedTight_0", "lep_SF_CombinedTight_1"]
 
+	# used_ntuple_variables = ["jet_pseudoscore_DL1r0","jet_pseudoscore_DL1r1","jet_pseudoscore_DL1r2","jet_pseudoscore_DL1r3","jet_pseudoscore_DL1r4", \
+	# 						"nJets_OR_TauOR", "nJets_OR_DL1r_70", "l2SS1tau", "met_met", "met_phi", \
+	# 						"lep_Pt_0", "lep_Eta_0", "lep_Phi_0", \
+	# 						"lep_Pt_1", "lep_Eta_1", "lep_Phi_1", \
+	# 						"lep_Pt_2", "lep_Eta_2", "lep_Phi_2", \
+	# 						"taus_pt_0", "taus_eta_0", "taus_phi_0", \
+	# 						"jet_pt0", "jet_eta0", "jet_phi0", \
+	# 						"jet_pt1", "jet_eta1", "jet_phi1", \
+	# 						"jet_pt2", "jet_eta2", "jet_phi2", \
+	# 						"jet_pt3", "jet_eta3", "jet_phi3", \
+	# 						"jet_pt4", "jet_eta4", "jet_phi4", \
+	# 						"jet_pt5", "jet_eta5", "jet_phi5", \
+	# 						"jet_pt6", "jet_eta6", "jet_phi6", \
+	# 						"m_truth_m", "m_truth_pt", "m_truth_eta", "m_truth_phi", "m_truth_e", \
+	# 						"m_truth_pdgId", "m_truth_status", "m_truth_barcode", "m_truth_children", "m_truth_parents", \
+	# 						"HT", "taus_numTrack_0", "eventNumber", \
+	# 						"RunYear", "custTrigSF_LooseID_FCLooseIso_DLT", "weight_pileup", "jvtSF_customOR", \
+	# 						"bTagSF_weight_DL1r_70", "weight_mc", "xs", "lep_SF_CombinedTight_0", "lep_SF_CombinedTight_1"]
+
+
+	""" These variables are the main ROOT variables that will be extracted.
+	 The list of variables below is for the most recent production of ntuples (ttH, ttW, ttZ)
+	 The list above this was used by Emily Hannon only for ttH analysis on
+		  particle assignment feature importance.
+	 The list at the top (first list) was used by Adam Herold for his thesis.
+	 If you have a new production with different variable names, this is where
+		 they will be modified. """
 	used_ntuple_variables = ["jet_pseudoscore_DL1r0","jet_pseudoscore_DL1r1","jet_pseudoscore_DL1r2","jet_pseudoscore_DL1r3","jet_pseudoscore_DL1r4", \
-							"nJets_OR_TauOR", "nJets_OR_DL1r_70", "l2SS1tau", "met_met", "met_phi", \
-							"lep_Pt_0", "lep_Eta_0", "lep_Phi_0", \
-							"lep_Pt_1", "lep_Eta_1", "lep_Phi_1", \
-							"lep_Pt_2", "lep_Eta_2", "lep_Phi_2", \
-							"taus_pt_0", "taus_eta_0", "taus_phi_0", \
-							"jet_pt0", "jet_eta0", "jet_phi0", \
-							"jet_pt1", "jet_eta1", "jet_phi1", \
-							"jet_pt2", "jet_eta2", "jet_phi2", \
-							"jet_pt3", "jet_eta3", "jet_phi3", \
-							"jet_pt4", "jet_eta4", "jet_phi4", \
-							"jet_pt5", "jet_eta5", "jet_phi5", \
-							"jet_pt6", "jet_eta6", "jet_phi6", \
-							"m_truth_m", "m_truth_pt", "m_truth_eta", "m_truth_phi", "m_truth_e", \
-							"m_truth_pdgId", "m_truth_status", "m_truth_barcode", "m_truth_children", "m_truth_parents", \
-							"HT", "taus_numTrack_0", "eventNumber", \
-							"RunYear", "custTrigSF_LooseID_FCLooseIso_DLT", "weight_pileup", "jvtSF_customOR", \
-							"bTagSF_weight_DL1r_70", "weight_mc", "xs", "lep_SF_CombinedTight_0", "lep_SF_CombinedTight_1"]
+								"nJets_OR_TauOR", "nJets_OR_DL1r_70", "l2SS1tau", "met_met", "met_phi", \
+								"lep_Pt_0", "lep_Eta_0", "lep_Phi_0", \
+								"lep_Pt_1", "lep_Eta_1", "lep_Phi_1", \
+								"lep_Pt_2", "lep_Eta_2", "lep_Phi_2", \
+								"taus_pt_0", "taus_eta_0", "taus_phi_0", \
+								"jet_tauOR_pt", "jet_tauOR_eta", "jet_tauOR_phi", \
+								"m_truth_m", "m_truth_pt", "m_truth_eta", "m_truth_phi", "m_truth_e", \
+								"m_truth_pdgId", "m_truth_status", "m_truth_barcode", "m_truth_children", "m_truth_parents", \
+								"HT", "taus_numTrack_0", "eventNumber", \
+								"RunYear", "custTrigSF_LooseID_FCLooseIso_DLT", "weight_pileup", "jvtSF_customOR", \
+								"bTagSF_weight_DL1r_70", "weight_mc", "xs", "lep_SF_CombinedTight_0", "lep_SF_CombinedTight_1"]
 
 	""" Leave all unused variables with status 0 to speed up iterating through tree. """
 	tree.SetBranchStatus("*",0)
@@ -631,22 +657,22 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 			event_truth = events_truth[i]
 			unusable = False
 
-			# if  event_truth.top_b.Mag() == 0 or \
-			# 	event_truth.anti_top_b.Mag() == 0 or \
-			# 	event_truth.lep_tau_W_l.Mag() == 0:
-			# 	unusable = True
-			#
-			# elif event_truth.anti_top_W_l.Mag() == 0 and \
-			# 	event_truth.top_W_l.Mag() == 0:
-			# 	unusable = True
-			#
-			# elif event_truth.top_W.Mag() == 0 and \
-			# 	event_truth.anti_top_W.Mag() == 0:
-			# 	unusable = True
-			#
-			# elif (event_truth.top_W_anti_q.Mag() == 0 or event_truth.top_W_q.Mag() == 0) and \
-			# 	(event_truth.anti_top_W_anti_q.Mag() == 0 or event_truth.anti_top_W_q.Mag() == 0):
-			# 	unusable = True
+			if  event_truth.top_b.Mag() == 0 or \
+				event_truth.anti_top_b.Mag() == 0 or \
+				event_truth.lep_tau_W_l.Mag() == 0:
+				unusable = True
+
+			elif event_truth.anti_top_W_l.Mag() == 0 and \
+				event_truth.top_W_l.Mag() == 0:
+				unusable = True
+
+			elif event_truth.top_W.Mag() == 0 and \
+				event_truth.anti_top_W.Mag() == 0:
+				unusable = True
+
+			elif (event_truth.top_W_anti_q.Mag() == 0 or event_truth.top_W_q.Mag() == 0) and \
+				(event_truth.anti_top_W_anti_q.Mag() == 0 or event_truth.anti_top_W_q.Mag() == 0):
+				unusable = True
 
 			if unusable:
 				index = i-deleted
@@ -704,8 +730,21 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 
 	id = int(1e06 * file_id + 1e04 * (main_particle_id if main_particle_id>0 else 42))
 
-	# YOU WILL PROBABLY HAVE TO RANDOMIZE THINGS SOMEWHERE HERE BECAUSE
-	# does event reco and event truth need to be on the same index? it looks like it
+	# https://stackoverflow.com/questions/4601373/better-way-to-shuffle-two-numpy-arrays-in-unison
+	events_reco = np.asarray(events_reco)
+	events_truth = np.asarray(events_truth)
+
+	# intended to shuffle and randomize the data each time we extract
+	# 	this way, the data should be randomized each time we train
+	randomize = np.arange(len(events_reco))
+	np.random.shuffle(randomize)
+	events_reco = events_reco[randomize]
+	events_truth = events_truth[randomize]
+
+	events_reco = events_reco.tolist()
+	events_truth = events_truth.tolist()
+
+
 
 	for i in range(len(events_reco)):
 		event_reco = events_reco[i]
@@ -781,67 +820,72 @@ def extract_data(file_path, file_id, output_folder, distribution, particle_assig
 if __name__ == "__main__":
 	""" Extract ttH and ttZ for training of particle assignment. """
 
-	# data_folders = ["ttH", "ttZ"]
-	# productions = ["ttH", "ttZ"]
+	# if you are missing an ntuple production, you can delete it from this list
+	# 	and this code should still run
+	# data_folders = ["ttH", "ttZ"] # filepath for each production
+	# productions = ["ttH", "ttZ"] # label for each production (should not be modified)
 
-	data_folders = ["../../../../CERN_data/ttH/"]
-	productions = ["ttH"]
+	data_folders = ["../../../../CERN_data/newNew/ttH_v1/", "../../../../CERN_data/newNew/ttZ_v1/"]
+	productions = ["ttH", "ttZ"]
 	print("start")
 
-	# WE NEED TO UNCOMMENT THIS BLOCK IN ORDER FOR THE EXTRACTION TO WORK
-	# WAS COMMENTED OUT FOR TESTING/TRIAL PURPOSES ONLY
-	# for i in range(len(data_folders)):
-	# 	data_folder = data_folders[i]
-	# 	print(data_folder)
-	# 	prod = productions[i]
-	# 	print(prod)
-	# 	file_names = []
-	# 	file_names += [join(data_folder, f) for f in listdir(data_folder) if isfile(join(data_folder, f))]
-	# 	print(file_names)
-	#
-	# 	counter = 1
-	# 	for file_name in file_names:
-	# 		print("got to here 2")
-	# 		extract_data(file_name, counter, "../data/particle_assignment_training_data", prod, True)
-	# 		print("got to here")
-	# 		counter += 1
-	#
-	# 	print("done")
-	#
+	for i in range(len(data_folders)):
+		data_folder = data_folders[i]
+		print(data_folder)
+		prod = productions[i]
+		print(prod)
+		file_names = []
+		file_names += [join(data_folder, f) for f in listdir(data_folder) if isfile(join(data_folder, f))]
+		print(file_names)
+
+		counter = 1
+		for file_name in file_names:
+			print("got to here 2")
+			extract_data(file_name, counter, "../data/particle_assignment_training_data", prod, True)
+			print("got to here")
+			counter += 1
+
+		print("done")
 
 
-	# """ Extract ttW and tt that will then be processed by trained particle
-	# assignment and the result will be used for mass reco. """
-	#
-	# data_folders = ["ttW", "tt"]
-	# productions = ["ttW", "tt"]
-	#
-	# for i in range(len(data_folders)):
-	# 	data_folder = data_folders[i]
-	# 	prod = productions[i]
-	# 	file_names = []
-	# 	file_names += [join(data_folder, f) for f in listdir(data_folder) if isfile(join(data_folder, f))]
-	#
-	# 	counter = 1
-	# 	for file_name in file_names:
-	# 		extract_data(file_name, counter, "data/particle_assignment_data_to_be_processed_ttW_tt", prod, False)
-	# 		counter += 1
-	#
 
-	print("starting final block")
-	""" Extract ttH and ttZ that will then be processed by trained particle
+	""" Extract ttW and tt that will then be processed by trained particle
 	assignment and the result will be used for mass reco. """
 
-	# data_folders = ["ttH", "ttZ"]
-	# productions = ["ttH", "ttZ"]
-	data_folders = ["../../../../CERN_data/ttH/"]
-	productions = ["ttH"]
+	# data_folders = ["ttW", "tt"] # filepath
+	# productions = ["ttW", "tt"] # labels
+	data_folders = ["../../../../CERN_data/newNew/ttW_v1/"]
+	productions = ["ttW"]
 
 	for i in range(len(data_folders)):
 		data_folder = data_folders[i]
 		prod = productions[i]
 		file_names = []
 		file_names += [join(data_folder, f) for f in listdir(data_folder) if isfile(join(data_folder, f))]
+
+		counter = 1
+		for file_name in file_names:
+			extract_data(file_name, counter, "../data/particle_assignment_data_to_be_processed_ttW_tt", prod, False)
+			counter += 1
+
+
+	print("starting final block")
+	""" Extract ttH and ttZ that will then be processed by trained particle
+	assignment and the result will be used for mass reco. """
+
+	# data_folders = ["ttH", "ttZ"] # filepath to each production
+	# productions = ["ttH", "ttZ"] # label for each production
+	data_folders = ["../../../../CERN_data/newNew/ttH_v1/", "../../../../CERN_data/newNew/ttZ_v1/"]
+	productions = ["ttH", "ttZ"]
+
+	for i in range(len(data_folders)):
+		data_folder = data_folders[i]
+		prod = productions[i]
+		file_names = []
+		file_names += [join(data_folder, f) for f in listdir(data_folder) if isfile(join(data_folder, f))]
+
+		print("filenames: ")
+		print(file_names)
 
 		counter = 1
 		for file_name in file_names:

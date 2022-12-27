@@ -1,5 +1,6 @@
 from ROOT import TLorentzVector
-
+# !!! NOTE: this file has been modified to accomodate jet variables implemented
+# to ntuples as vector(float) types !!!
 
 
 class TruthEvent():
@@ -126,14 +127,25 @@ def dist(p1,p2):
 	return p2.Eta()-p1.Eta()
 
 def generate_jets_mask(event):
-	jet_pt0 = event.jet_pt0
-	jet_pt1 = event.jet_pt1
-	jet_pt2 = event.jet_pt2
-	jet_pt3 = event.jet_pt3
-	jet_pt4 = event.jet_pt4
-	jet_pt5 = event.jet_pt5
-	jet_pt6 = event.jet_pt6
-	jets_pts = [jet_pt0 != -99.0,jet_pt1 != -99.0,jet_pt2 != -99.0,jet_pt3 != -99.0,jet_pt4 != -99.0,jet_pt5 != -99.0,jet_pt6 != -99.0]
+	# jet_pt0 = event.jet_pt0
+	# jet_pt1 = event.jet_pt1
+	# jet_pt2 = event.jet_pt2
+	# jet_pt3 = event.jet_pt3
+	# jet_pt4 = event.jet_pt4
+	# jet_pt5 = event.jet_pt5
+	# jet_pt6 = event.jet_pt6
+	test = event.jet_tauOR_pt
+	# print("printing test: ")
+	# print(test)
+	jet_pt0 = event.jet_tauOR_pt[0]
+	jet_pt1 = event.jet_tauOR_pt[1]
+	jet_pt2 = event.jet_tauOR_pt[2]
+	# jet_pt3 = event.jet_tauOR_pt[3]
+	# jet_pt4 = event.jet_tauOR_pt[4]
+	# jet_pt5 = event.jet_tauOR_pt[5]
+	# jet_pt6 = event.jet_tauOR_pt[6]
+	# jets_pts = [jet_pt0 != -99.0,jet_pt1 != -99.0,jet_pt2 != -99.0,jet_pt3 != -99.0,jet_pt4 != -99.0,jet_pt5 != -99.0,jet_pt6 != -99.0]
+	jets_pts = [jet_pt0 != -99.0,jet_pt1 != -99.0,jet_pt2 != -99.0]
 	return jets_pts
 
 def get_jets(event,jets_mask):
@@ -149,47 +161,52 @@ def get_jets(event,jets_mask):
 	indices = [i for i, x in enumerate(jets_mask) if x]
 
 	if len(indices) > 0:
-		jet_pt0 = getattr(event, "jet_pt"+str(indices[0]))
-		jet_eta0 = getattr(event, "jet_eta"+str(indices[0]))
-		jet_phi0 = getattr(event, "jet_phi"+str(indices[0]))
+		jet_pt0 = getattr(event, "jet_tauOR_pt")[0]
+		jet_eta0 = getattr(event, "jet_tauOR_eta")[0]
+		jet_phi0 = getattr(event, "jet_tauOR_phi")[0]
 		jet_E0 = 0 # getattr(event, "jet_tauOR_E"+str(indices[0]))
 		q1.SetPtEtaPhiE(jet_pt0,jet_eta0,jet_phi0,jet_E0)
 	if len(indices) > 1:
-		jet_pt1 = getattr(event, "jet_pt"+str(indices[1]))
-		jet_eta1 = getattr(event, "jet_eta"+str(indices[1]))
-		jet_phi1 = getattr(event, "jet_phi"+str(indices[1]))
+		jet_pt1 = getattr(event, "jet_tauOR_pt")[1]
+		jet_eta1 = getattr(event, "jet_tauOR_eta")[1]
+		# jet_phi1 = getattr(event, "jet_phi"+str(indices[1]))
+		jet_phi1 = getattr(event, "jet_tauOR_phi")[1]
 		jet_E1 = 0 # getattr(event, "jet_tauOR_E"+str(indices[1]))
 		q2.SetPtEtaPhiE(jet_pt1,jet_eta1,jet_phi1,jet_E1)
 	if len(indices) > 2:
-		jet_pt2 = getattr(event, "jet_pt"+str(indices[2]))
-		jet_eta2 = getattr(event, "jet_eta"+str(indices[2]))
-		jet_phi2 = getattr(event, "jet_phi"+str(indices[2]))
+		jet_pt2 = getattr(event, "jet_tauOR_pt")[2]
+		jet_eta2 = getattr(event, "jet_tauOR_eta")[2]
+		# jet_phi2 = getattr(event, "jet_phi"+str(indices[2]))
+		jet_phi2 = getattr(event, "jet_tauOR_phi")[2]
 		jet_E2 = 0 # getattr(event, "jet_tauOR_E"+str(indices[2]))
 		q3.SetPtEtaPhiE(jet_pt2,jet_eta2,jet_phi2,jet_E2)
-	if len(indices) > 3:
-		jet_pt3 = getattr(event, "jet_pt"+str(indices[3]))
-		jet_eta3 = getattr(event, "jet_eta"+str(indices[3]))
-		jet_phi3 = getattr(event, "jet_phi"+str(indices[3]))
-		jet_E3 = 0 # getattr(event, "jet_tauOR_E"+str(indices[3]))
-		q4.SetPtEtaPhiE(jet_pt3,jet_eta3,jet_phi3,jet_E3)
-	if len(indices) > 4:
-		jet_pt4 = getattr(event, "jet_pt"+str(indices[4]))
-		jet_eta4 = getattr(event, "jet_eta"+str(indices[4]))
-		jet_phi4 = getattr(event, "jet_phi"+str(indices[4]))
-		jet_E4 = 0 # getattr(event, "jet_tauOR_E"+str(indices[4]))
-		q5.SetPtEtaPhiE(jet_pt4,jet_eta4,jet_phi4,jet_E4)
-	if len(indices) > 5:
-		jet_pt5 = getattr(event, "jet_pt"+str(indices[5]))
-		jet_eta5 = getattr(event, "jet_eta"+str(indices[5]))
-		jet_phi5 = getattr(event, "jet_phi"+str(indices[5]))
-		jet_E5 = 0 # getattr(event, "jet_tauOR_E"+str(indices[5]))
-		q6.SetPtEtaPhiE(jet_pt5,jet_eta5,jet_phi5,jet_E5)
-	if len(indices) > 6:
-		jet_pt6 = getattr(event, "jet_pt"+str(indices[6]))
-		jet_eta6 = getattr(event, "jet_eta"+str(indices[6]))
-		jet_phi6 = getattr(event, "jet_phi"+str(indices[6]))
-		jet_E6 = 0 # getattr(event, "jet_tauOR_E"+str(indices[6]))
-		q7.SetPtEtaPhiE(jet_pt6,jet_eta6,jet_phi6,jet_E6)
+	# if len(indices) > 3:
+	# 	jet_pt3 = getattr(event, "jet_tauOR_pt")[3]
+	# 	jet_eta3 = getattr(event, "jet_tauOR_eta")[3]
+	# 	# jet_phi3 = getattr(event, "jet_phi"+str(indices[3]))
+	# 	jet_phi3 = getattr(event, "jet_tauOR_phi")[3]
+	# 	jet_E3 = 0 # getattr(event, "jet_tauOR_E"+str(indices[3]))
+	# 	q4.SetPtEtaPhiE(jet_pt3,jet_eta3,jet_phi3,jet_E3)
+	# if len(indices) > 4:
+	# 	jet_pt4 = getattr(event, "jet_tauOR_pt")[4]
+	# 	jet_eta4 = getattr(event, "jet_tauOR_eta")[4]
+	# 	# jet_phi4 = getattr(event, "jet_phi"+str(indices[4]))
+	# 	jet_phi4 = getattr(event, "jet_tauOR_phi")[4]
+	# 	jet_E4 = 0 # getattr(event, "jet_tauOR_E"+str(indices[4]))
+	# 	q5.SetPtEtaPhiE(jet_pt4,jet_eta4,jet_phi4,jet_E4)
+	# if len(indices) > 5:
+	# 	jet_pt5 = getattr(event, "jet_tauOR_pt")[5]
+	# 	jet_eta5 = getattr(event, "jet_tauOR_eta")[5]
+	# 	# jet_phi5 = getattr(event, "jet_phi"+str(indices[5]))
+	# 	jet_phi5 = getattr(event, "jet_tauOR_phi")[5]
+	# 	jet_E5 = 0 # getattr(event, "jet_tauOR_E"+str(indices[5]))
+	# 	q6.SetPtEtaPhiE(jet_pt5,jet_eta5,jet_phi5,jet_E5)
+	# if len(indices) > 6:
+	# 	jet_pt6 = getattr(event, "jet_pt"+str(indices[6]))
+	# 	jet_eta6 = getattr(event, "jet_eta"+str(indices[6]))
+	# 	jet_phi6 = getattr(event, "jet_phi"+str(indices[6]))
+	# 	jet_E6 = 0 # getattr(event, "jet_tauOR_E"+str(indices[6]))
+	# 	q7.SetPtEtaPhiE(jet_pt6,jet_eta6,jet_phi6,jet_E6)
 	# if len(indices) > 7:
 	# 	jet_pt7 = getattr(event, "jet_tauOR_pt"+str(indices[7]))
 	# 	jet_eta7 = getattr(event, "jet_tauOR_eta"+str(indices[7]))

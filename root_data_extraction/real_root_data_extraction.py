@@ -2,16 +2,20 @@ from ROOT import TFile, TNtuple
 import csv
 import numpy as np
 
+""" This file has been used to extract real world (non simulation) data from
+	ROOT files. """
+
 # f = TFile.Open("../../../../CERN_data/truth/nominal/mc16a/p4416/410155.root")   #or 16,17,18
 
+# This file path must be modified to point to your data that you wish to extract.
 f = TFile.Open("../../../../CERN_data/ttH/user.nguseyno.28484942._000001.output.root")   #or 16,17,18
 
-
-# C:\Users\georg\CERN_data\ttH
 
 if f.IsZombie() or not f.IsOpen():
 	print("Error opening file")
 
+# Note: These variable names may have to be modified if we use a different
+# 	version of data and the variable names have been changed.
 # Reduced variables without the jets information.
 used_ntuple_variables = ["nJets_OR_TauOR", "nJets_OR_DL1r_70", "l2SS1tau", "met_met", "met_phi", \
 							"lep_Pt_0", "lep_E_0", "lep_Eta_0", "lep_Phi_0", \
@@ -34,8 +38,6 @@ tree.SetBranchStatus("*",0)
 
 for var_name in used_ntuple_variables:
 		tree.SetBranchStatus(var_name,1)
-
-print("got to here")
 
 c=0
 rows = []
@@ -65,7 +67,6 @@ for event in tree:
 		row.append(float(event.jet_eta2))
 		row.append(float(event.bjet_pt0))
 		row.append(float(event.bjet_eta0))
-		# how do we process the truth data here? this will probably be done in the other extraction
 		row.append(float(event.HT))
 		row.append(float(ord(event.taus_numTrack_0)))
 		row.append(float(event.eventNumber))
@@ -75,4 +76,4 @@ f = open("user.nguseyno.28484942._000001.output.csv", "a")   # 16,17,18
 writer = csv.writer(f)
 writer.writerows(rows)
 f.close()
-print(c)
+# print(c)

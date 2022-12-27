@@ -11,3 +11,7 @@ Source codes and materials for the thesis Application of Machine Learning for th
 ./trained_NN_models will contain trained models
 
 Adam Herold 2021
+Emily Hannon 2022 (minor code additions)
+
+NOTE: There are several filetypes excluded in the project .gitignore. 
+	These should be excluding filetypes containg large amounts of data and no files essential to the project function.

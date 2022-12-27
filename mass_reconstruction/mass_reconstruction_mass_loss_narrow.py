@@ -169,41 +169,38 @@ class DataGenerator(keras.utils.Sequence):
 # %%
 # Load data.
 
-# def add_weights(tth,ttz):
-# 	""" Class weights, because of the imbalance between the productions' number of events. """
-# 	weight_tth = 1/(2*len(tth)/(len(ttz)+len(tth)))
-# 	weight_ttz = 1/(2*len(ttz)/(len(ttz)+len(tth)))
-#
-# 	print(weight_tth)
-# 	print(weight_ttz)
-#
-# 	ones = np.ones((tth.shape[0],1))
-# 	tth = np.concatenate((tth, weight_tth*ones),axis=1)
-#
-# 	ones = np.ones((ttz.shape[0],1))
-# 	ttz = np.concatenate((ttz, weight_ttz*ones),axis=1)
-#
-# 	return tth,ttz
-
-def add_weights(tth):
+def add_weights(tth,ttz):
 	""" Class weights, because of the imbalance between the productions' number of events. """
-	weight_tth = 1/(2*len(tth)/(len(tth)))
+	weight_tth = 1/(2*len(tth)/(len(ttz)+len(tth)))
+	weight_ttz = 1/(2*len(ttz)/(len(ttz)+len(tth)))
 
 	print(weight_tth)
+	print(weight_ttz)
 
 	ones = np.ones((tth.shape[0],1))
 	tth = np.concatenate((tth, weight_tth*ones),axis=1)
 
-	return tth
+	ones = np.ones((ttz.shape[0],1))
+	ttz = np.concatenate((ttz, weight_ttz*ones),axis=1)
+
+	return tth,ttz
+
+# def add_weights(tth):
+# 	""" Class weights, because of the imbalance between the productions' number of events. """
+# 	weight_tth = 1/(2*len(tth)/(len(tth)))
+#
+# 	print(weight_tth)
+#
+# 	ones = np.ones((tth.shape[0],1))
+# 	tth = np.concatenate((tth, weight_tth*ones),axis=1)
+#
+# 	return tth
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as f:
 	X_y_train_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
-# with open("data/mass_reco/mass_reco_input_narrow_selection_train_ttZ.csv") as f:
-# 	X_y_train_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
-with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as f:
-	train_ttH_features_reader = csv.reader(f, delimiter=",")
-	train_ttH_features=next(train_ttH_features_reader)
-	
+with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttZ.csv") as f:
+	X_y_train_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
+
 print("printing features:")
 print(train_ttH_features)
 print(" ")
@@ -213,27 +210,26 @@ print("shape of xytrain:")
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv") as f:
 	X_y_test_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
-# with open("data/mass_reco/mass_reco_input_narrow_selection_btags_test_ttZ.csv") as f:
-# 	X_y_test_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
+with open("data/mass_reco/mass_reco_input_narrow_selection_btags_test_ttZ.csv") as f:
+	X_y_test_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_val_ttH.csv") as f:
 	X_y_val_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
-# with open("data/mass_reco/mass_reco_input_narrow_selection_btags_val_ttZ.csv") as f:
-# 	X_y_val_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
+with open("data/mass_reco/mass_reco_input_narrow_selection_btags_val_ttZ.csv") as f:
+	X_y_val_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
 
 
-# X_y_train_ttH, X_y_train_ttZ = add_weights(X_y_train_ttH, X_y_train_ttZ)    # Add weights to the data
-# X_y_train = np.concatenate((X_y_train_ttH, X_y_train_ttZ), axis=0)          # Combine ttH and ttZ for training.
-X_y_train_ttH = add_weights(X_y_train_ttH)    # Add weights to the data
+X_y_train_ttH, X_y_train_ttZ = add_weights(X_y_train_ttH, X_y_train_ttZ)    # Add weights to the data
+X_y_train = np.concatenate((X_y_train_ttH, X_y_train_ttZ), axis=0)          # Combine ttH and ttZ for training.
+# X_y_train_ttH = add_weights(X_y_train_ttH)    # Add weights to the data
 # X_y_train = np.concatenate((X_y_train_ttH), axis=0)
-X_y_train = X_y_train_ttH
 X_train = np.concatenate((X_y_train[:,:-10], X_y_train[:,-6:]), axis = 1)   # Seprate X ...
 y_train = X_y_train[:,-10:-6]                                               # ... and y.
 y_train_masses = np.empty((y_train.shape[0],1))                             # From y we will calculate masses - we use those as labels.
 
 # getting a list of features for ttH
 X_train_features = np.concatenate((train_ttH_features[:-10], train_ttH_features[-6:]), axis = 0)
-y_train_features = train_ttH_features[-10:-6] 
+y_train_features = train_ttH_features[-10:-6]
 
 print("PRINTING X TRAIN FEATURES")
 print(X_train_features)
@@ -252,10 +248,10 @@ for i in range(len(y_train)):              # For each event calculate the Higgs/
 	vec.SetPxPyPzE(v[0],v[1],v[2],v[3])
 	y_train_masses[i] = vec.Mag()
 
-# X_y_val_ttH, X_y_val_ttZ = add_weights(X_y_val_ttH, X_y_val_ttZ)    # Repeat for val and test...
-X_y_val_ttH = add_weights(X_y_val_ttH)    # Repeat for val and test...
+X_y_val_ttH, X_y_val_ttZ = add_weights(X_y_val_ttH, X_y_val_ttZ)    # Repeat for val and test...
+# X_y_val_ttH = add_weights(X_y_val_ttH)    # Repeat for val and test...
 # X_y_val_ttH, X_y_val_ttZ = add_weights(X_y_val_ttH, X_y_val_ttZ)
-X_y_val = X_y_val_ttH
+X_y_val = np.concatenate((X_y_val_ttH, X_y_val_ttZ), axis=0)
 X_val = np.concatenate((X_y_val[:,:-10], X_y_val[:,-6:]), axis = 1)
 y_val = X_y_val[:,-10:-6]
 y_val_masses = np.empty((y_val.shape[0],1))
@@ -266,10 +262,8 @@ for i in range(len(y_val)):
 	vec.SetPxPyPzE(v[0],v[1],v[2],v[3])
 	y_val_masses[i] = vec.Mag()
 
-# X_y_test_ttH, X_y_test_ttZ = add_weights(X_y_test_ttH, X_y_test_ttZ)
-X_y_test_ttH = add_weights(X_y_test_ttH)
-# X_y_test = np.concatenate((X_y_test_ttH, X_y_test_ttZ), axis=0)
-X_y_test = X_y_test_ttH
+X_y_test_ttH, X_y_test_ttZ = add_weights(X_y_test_ttH, X_y_test_ttZ)
+X_y_test = np.concatenate((X_y_test_ttH, X_y_test_ttZ), axis=0)
 X_test = np.concatenate((X_y_test[:,:-10], X_y_test[:,-6:]), axis = 1)
 y_test = X_y_test[:,-10:-6]
 y_test_masses = np.empty((y_test.shape[0],1))
@@ -400,17 +394,17 @@ from scipy.optimize import curve_fit
 from scipy.stats import crystalball, norm
 
 ttH_eval_generator = DataGenerator(np.concatenate((X_y_test_ttH[:,:-10], X_y_test_ttH[:,-6:]), axis = 1), y_test_masses[:len(X_y_test_ttH)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
-# ttZ_eval_generator = DataGenerator(np.concatenate((X_y_test_ttZ[:,:-10], X_y_test_ttZ[:,-6:]), axis = 1), y_test_masses[len(X_y_test_ttH):len(X_y_test_ttH)+len(X_y_test_ttZ)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
+ttZ_eval_generator = DataGenerator(np.concatenate((X_y_test_ttZ[:,:-10], X_y_test_ttZ[:,-6:]), axis = 1), y_test_masses[len(X_y_test_ttH):len(X_y_test_ttH)+len(X_y_test_ttZ)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
 
 ttH_y_pred = model.predict(ttH_eval_generator)
 X_y = ttH_eval_generator.get_all()
 ttH_X_eval = X_y[0]
 ttH_y_true = X_y[1]
 
-# ttZ_y_pred = model.predict(ttZ_eval_generator)
-# X_y = ttZ_eval_generator.get_all()
-# ttZ_X_eval = X_y[0]
-# ttZ_y_true = X_y[1]
+ttZ_y_pred = model.predict(ttZ_eval_generator)
+X_y = ttZ_eval_generator.get_all()
+ttZ_X_eval = X_y[0]
+ttZ_y_true = X_y[1]
 
 
 """ Scale in the opposite direction, to get the mass in MeV. """
@@ -421,15 +415,15 @@ with open("../scaler_params/y_scaler_higgs_masses_narrow.csv") as f:
 ttH_y_true = ttH_y_true * y_scaler[1] + y_scaler[0]
 ttH_y_pred = ttH_y_pred * y_scaler[1] + y_scaler[0]
 
-# ttZ_y_true = ttZ_y_true * y_scaler[1] + y_scaler[0]
-# ttZ_y_pred = ttZ_y_pred * y_scaler[1] + y_scaler[0]
+ttZ_y_true = ttZ_y_true * y_scaler[1] + y_scaler[0]
+ttZ_y_pred = ttZ_y_pred * y_scaler[1] + y_scaler[0]
 
 with open("../scaler_params/X_scaler_mass_reco_narrow.csv") as f:
 	scaler_params = np.loadtxt(f, delimiter=",")
 	X_scaler = scaler_params[0:2,:]
 
 ttH_X_eval = ttH_X_eval * X_scaler[1] + X_scaler[0]
-# ttZ_X_eval = ttZ_X_eval * X_scaler[1] + X_scaler[0]
+ttZ_X_eval = ttZ_X_eval * X_scaler[1] + X_scaler[0]
 
 predicted_higgs_masses = []
 predicted_Z_masses = []
@@ -448,14 +442,14 @@ plt.plot(centers, norm.pdf(centers,*pars1), 'r--',linewidth = 2, label='fit befo
 plt.annotate("Gaussian fit ttH" "\n" r'$\mu=%.3f$' "\n" r'$\sigma=%.3f$' % (pars1[0], pars1[1]), xy=(0, 1), xytext=(20, -12), va='top',
 				 xycoords='axes fraction', textcoords='offset points')
 
-# n, bins, patches = plt.hist(ttZ_y_pred/1000, bins=np.linspace(0,140,100), alpha = 0.5, density = True, color='orange')
-# centers = (0.5*(bins[1:]+bins[:-1]))
-# mean,std = norm.fit(ttZ_y_pred/1000)
-# p0 = [mean, std]
-# pars2, cov = curve_fit(lambda x, mu, sig : norm.pdf(x, loc=mu, scale=sig), centers, n, p0=p0)
-# plt.plot(centers, norm.pdf(centers,*pars2), 'r--',linewidth = 2, label='fit before')
-# plt.annotate("Gaussian fit ttZ" "\n" r'$\mu=%.3f$' "\n" r'$\sigma=%.3f$' % (pars2[0], pars2[1]), xy=(0, 1), xytext=(20, -90), va='top',
-# 				 xycoords='axes fraction', textcoords='offset points')
+n, bins, patches = plt.hist(ttZ_y_pred/1000, bins=np.linspace(0,140,100), alpha = 0.5, density = True, color='orange')
+centers = (0.5*(bins[1:]+bins[:-1]))
+mean,std = norm.fit(ttZ_y_pred/1000)
+p0 = [mean, std]
+pars2, cov = curve_fit(lambda x, mu, sig : norm.pdf(x, loc=mu, scale=sig), centers, n, p0=p0)
+plt.plot(centers, norm.pdf(centers,*pars2), 'r--',linewidth = 2, label='fit before')
+plt.annotate("Gaussian fit ttZ" "\n" r'$\mu=%.3f$' "\n" r'$\sigma=%.3f$' % (pars2[0], pars2[1]), xy=(0, 1), xytext=(20, -90), va='top',
+				 xycoords='axes fraction', textcoords='offset points')
 
 plt.axvline(125,color='blue', linestyle='dashed')
 plt.axvline(91.19,color='orange', linestyle='dashed')
@@ -472,16 +466,12 @@ print(np.mean(ttH_y_pred/1000), np.std(ttH_y_pred/1000))
 # %%
 """ Separation curve. """
 
-# min_mass = np.min(np.concatenate((ttH_y_pred, ttZ_y_pred)))
-# max_mass = np.max(np.concatenate((ttH_y_pred, ttZ_y_pred)))
-min_mass = np.min(np.concatenate((ttH_y_pred)))
-max_mass = np.max(np.concatenate((ttH_y_pred)))
+min_mass = np.min(np.concatenate((ttH_y_pred, ttZ_y_pred)))
+max_mass = np.max(np.concatenate((ttH_y_pred, ttZ_y_pred)))
 
 
-# bg_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttZ_y_pred)
-# h_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttH_y_pred)
-bg_weight = (len(ttH_y_pred))/2
-h_weight = (len(ttH_y_pred))/2/len(ttH_y_pred)
+bg_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttZ_y_pred)
+h_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttH_y_pred)
 print(h_weight)
 print(bg_weight)
 
@@ -508,17 +498,15 @@ for i in range(n_steps):
 		else:
 			correct_h[i] += 1
 
-	# for z_mass in ttZ_y_pred:
-	# 	if z_mass < current_divider:
-	# 		correct_bg[i] += 1
-	# 	else:
-	# 		incorrect_bg[i] += 1
+	for z_mass in ttZ_y_pred:
+		if z_mass < current_divider:
+			correct_bg[i] += 1
+		else:
+			incorrect_bg[i] += 1
 
 steps = steps/1000
-# correct_h /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
-# correct_bg /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
-correct_h /= (len(ttH_y_pred))/100
-correct_bg /= (len(ttH_y_pred))/100
+correct_h /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
+correct_bg /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
 
 plt.figure(figsize=(12,8))
 plt.plot(steps, correct_h, linewidth=3, color='blue')
@@ -558,19 +546,19 @@ ttH = root.TH1F("ttH","",20,80,140)
 root_numpy.fill_hist(ttH, ttH_y_pred.flatten()/1000)
 
 # weights are only necessary if you have ttZ information
-# weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
+weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
 
-# ttZ = root.TH1F("ttZ","",20,80,140)
-# root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
+ttZ = root.TH1F("ttZ","",20,80,140)
+root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
 
 fig, ax = aplt.subplots(1, 1)
 
 ttH.Fit("gauss_fit_2","0")
 gauss_fit_2.SetNpx(1000)
-#ax.plot(gauss_fit_2, label="Fit", labelfmt="L", linecolor=root.kRed+1, linewidth=3)
+# ax.plot(gauss_fit_2, label="Fit", labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
-# ttZ.Fit("gauss_fit_1","0")
-# gauss_fit_1.SetNpx(1000)
+ttZ.Fit("gauss_fit_1","0")
+gauss_fit_1.SetNpx(1000)
 #ax.plot(gauss_fit_1, label=None, labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
 ttH_fit = ttH.GetFunction("gauss_fit_2")

@@ -190,10 +190,11 @@ METRICS = [
 
 # In[5]:
 
+print("loading the model")
 
 # Load the trained model.
 model = load_model("models/particle_assignment_model", custom_objects={'custom_f1':custom_f1, 'matthews_correlation':matthews_correlation, 'weighted_binary_crossentropy':create_weighted_binary_crossentropy})
-
+print("model loaded")
 
 # In[6]:
 
@@ -202,26 +203,26 @@ model = load_model("models/particle_assignment_model", custom_objects={'custom_f
 
 with open("../data/particle_assignment_training_data/labels_dict_ttH.csv") as f:
 	lines_ttH = f.readlines()
-# with open("../data/particle_assignment_training_data/labels_dict_ttZ.csv") as f:
-# 	lines_ttZ = f.readlines()
+with open("../data/particle_assignment_training_data/labels_dict_ttZ.csv") as f:
+	lines_ttZ = f.readlines()
 
 with open("../data/particle_assignment_training_data/train_ids_ttH.csv") as f:
 	train_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_training_data/train_ids_ttZ.csv") as f:
-# 	train_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_training_data/train_ids_ttZ.csv") as f:
+	train_ids_ttZ = np.loadtxt(f, delimiter=",")
 
 with open("../data/particle_assignment_training_data/test_ids_ttH.csv") as f:
 	test_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_training_data/test_ids_ttZ.csv") as f:
-# 	test_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_training_data/test_ids_ttZ.csv") as f:
+	test_ids_ttZ = np.loadtxt(f, delimiter=",")
 
 with open("../data/particle_assignment_training_data/val_ids_ttH.csv") as f:
 	val_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_training_data/val_ids_ttZ.csv") as f:
-# 	val_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_training_data/val_ids_ttZ.csv") as f:
+	val_ids_ttZ = np.loadtxt(f, delimiter=",")
 
-# lines = np.concatenate((lines_ttH,lines_ttZ), axis = 0)
-lines = lines_ttH
+lines = np.concatenate((lines_ttH,lines_ttZ), axis = 0)
+# lines = lines_ttH
 
 labels_dict = {}
 
@@ -230,7 +231,7 @@ for line in lines:
 	key = str(int(row[0]))
 	value = (row[1:]).reshape((int(len(row[1:])/5),5))
 	labels_dict[key] = value
-
+print("narrow selection loaded")
 
 # In[11]:
 
@@ -242,12 +243,12 @@ The data of the chosen permutation is then saved to a file to be used in the mas
 # Narrow ttH, ttZ.
 
 # FIX THIS
-# ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
-# file_name_endings = ["train_ttH","val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
+ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
+file_name_endings = ["train_ttH","val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
 # ids_list = [test_ids_ttH, test_ids_ttZ]
 # file_name_endings = ["test_ttH","test_ttZ"]
-ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH]
-file_name_endings = ["train_ttH","val_ttH","test_ttH"]
+# ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH]
+# file_name_endings = ["train_ttH","val_ttH","test_ttH"]
 
 for ids,ending in zip(ids_list,file_name_endings):
 	""" One generator for obtaining the probability vectors. Second generator to obtain the precise data we want to save to the file. """
@@ -309,6 +310,8 @@ for ids,ending in zip(ids_list,file_name_endings):
 	all_best_ys = np.mean(all_best_ys, axis=0)
 	all_best_possible_ys = np.mean(all_best_possible_ys, axis=0)
 
+	print("saving data")
+
 	""" Besides saving the data we can also check the accuracy of each positions assignment (only for narrow selection). """
 
 	f = open("../data/particle_assignment_training_data/particle_assignment_accuracy_narrow_selection_" + ending + ".csv", "w")
@@ -318,6 +321,7 @@ for ids,ending in zip(ids_list,file_name_endings):
 	f.close()
 
 	""" Write to file. """
+	print("writing to file")
 
 	f = open("../data/mass_reco/mass_reco_input_narrow_selection_" + ending + ".csv", "w")
 	writer = csv.writer(f)
@@ -327,32 +331,129 @@ for ids,ending in zip(ids_list,file_name_endings):
 
 
 # In[ ]:
-
+print("beginning loading wide selestion")
 
 """ Load wide selection ttH, ttZ data from files. """
 
 with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/labels_dict_ttH.csv") as f:
 	lines_ttH = f.readlines()
-# with open("data/particle_assignment_data_to_be_processed_ttH_ttZ/labels_dict_ttZ.csv") as f:
-# 	lines_ttZ = f.readlines()
+with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/labels_dict_ttZ.csv") as f:
+	lines_ttZ = f.readlines()
 
 with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/train_ids_ttH.csv") as f:
 	train_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("data/particle_assignment_data_to_be_processed_ttH_ttZ/train_ids_ttZ.csv") as f:
-# 	train_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/train_ids_ttZ.csv") as f:
+	train_ids_ttZ = np.loadtxt(f, delimiter=",")
 
 with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/test_ids_ttH.csv") as f:
 	test_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("data/particle_assignment_data_to_be_processed_ttH_ttZ/test_ids_ttZ.csv") as f:
-# 	test_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/test_ids_ttZ.csv") as f:
+	test_ids_ttZ = np.loadtxt(f, delimiter=",")
 
 with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/val_ids_ttH.csv") as f:
 	val_ids_ttH = np.loadtxt(f, delimiter=",")
-# with open("data/particle_assignment_data_to_be_processed_ttH_ttZ/val_ids_ttZ.csv") as f:
-# 	val_ids_ttZ = np.loadtxt(f, delimiter=",")
+with open("../data/particle_assignment_data_to_be_processed_ttH_ttZ/val_ids_ttZ.csv") as f:
+	val_ids_ttZ = np.loadtxt(f, delimiter=",")
 
-#lines = np.concatenate((lines_ttH,lines_ttZ), axis = 0)
-lines = lines_ttH
+lines = np.concatenate((lines_ttH,lines_ttZ), axis = 0)
+
+labels_dict = {}
+
+for line in lines:
+	row = np.fromstring(line, dtype=float, sep=',')
+	key = str(int(row[0]))
+	value = (row[1:]).reshape((int(len(row[1:])/5),5))
+	labels_dict[key] = value
+	print("loading")
+
+print("wide selection loaded")
+
+# In[ ]:
+
+
+""" Same as for narrow selection, but this time the wide selection ttH and ttZ is used. """
+
+ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
+file_name_endings = ["train_ttH", "val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
+# ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH]
+# file_name_endings = ["train_ttH", "val_ttH","test_ttH"]
+
+
+for ids,ending in zip(ids_list,file_name_endings):
+	predict_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=False, standardize=True, data_path = "../data/particle_assignment_data_to_be_processed_ttH_ttZ/data")
+	write_to_file_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=True, standardize=False, data_path = "../data/particle_assignment_data_to_be_processed_ttH_ttZ/data")
+
+	test_ones_diff = 0
+	test_samples_count = 0
+
+	data = []
+	all_best_ys = []
+	all_best_possible_ys = []
+
+	y_pred_best = []
+	y_true_best = []
+	for i in range(len(predict_generator)):
+		X_test = predict_generator[i][0]
+		y_test = predict_generator[i][1]
+
+		X_to_file = write_to_file_generator[i][0]
+
+		preds = model.predict(X_test)
+
+		X_y_preds = np.concatenate((X_to_file, y_test, preds),axis=1)
+
+		ids = np.unique(X_to_file[:,0])
+
+		X_to_file = X_to_file[:,1:]
+
+		for id in ids:
+			X_y_preds_all_combinations = np.array([row[1:] for row in X_y_preds if row[0] == id])
+			X_all_combinations = X_y_preds_all_combinations[:,:X_to_file.shape[1]]
+			preds_all_combinations = X_y_preds_all_combinations[:,X_to_file.shape[1]+y_test.shape[1]:]
+
+			product = np.product(preds_all_combinations, axis=1)
+
+			best_pred = preds_all_combinations[np.argmax(product)]
+			best_X = X_all_combinations[np.argmax(product)]
+
+			data += [best_X.tolist() + best_pred.tolist()]
+		print("processing wide selection")
+
+	f = open("../data/mass_reco/mass_reco_input_wide_selection_" + ending + ".csv", "w")
+	writer = csv.writer(f)
+	writer.writerow(column_labels_mass_reco)
+	writer.writerows(data)
+	f.close()
+
+	print("writing wide selection")
+
+# In[ ]:
+
+# COMMENTED OUT ALL ttW tt FROM HERE TO THE BOTTOM OF THE CODE
+# """ Load wide selection ttW, tt data from files. """
+#
+with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_ttW.csv") as f:
+	lines_ttW = f.readlines()
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_tt.csv") as f:
+# 	lines_tt = f.readlines()
+#
+with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_ttW.csv") as f:
+	train_ids_ttW = np.loadtxt(f, delimiter=",")
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_tt.csv") as f:
+# 	train_ids_tt = np.loadtxt(f, delimiter=",")
+#
+with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_ttW.csv") as f:
+	test_ids_ttW = np.loadtxt(f, delimiter=",")
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_tt.csv") as f:
+# 	test_ids_tt = np.loadtxt(f, delimiter=",")
+#
+with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_ttW.csv") as f:
+	val_ids_ttW = np.loadtxt(f, delimiter=",")
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_tt.csv") as f:
+# 	val_ids_tt = np.loadtxt(f, delimiter=",")
+#
+# lines = np.concatenate((lines_ttW,lines_tt), axis = 0)
+lines = np.concatenate((lines_ttW), axis = 0)
 
 labels_dict = {}
 
@@ -362,21 +463,23 @@ for line in lines:
 	value = (row[1:]).reshape((int(len(row[1:])/5),5))
 	labels_dict[key] = value
 
-
-# In[ ]:
-
-
-""" Same as for narrow selection, but this time the wide selection ttH and ttZ is used. """
-
-# ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH, train_ids_ttZ, val_ids_ttZ, test_ids_ttZ]
-# file_name_endings = ["train_ttH", "val_ttH","test_ttH","train_ttZ","val_ttZ","test_ttZ"]
-ids_list = [train_ids_ttH, val_ids_ttH, test_ids_ttH]
-file_name_endings = ["train_ttH", "val_ttH","test_ttH"]
+print("loading wide selection ttW")
+#
+#
+# # In[ ]:
+#
+#
+# """ Same as for narrow selection, but this time the wide selection ttW and tt is used. """
+#
+# ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW, train_ids_tt, val_ids_tt, test_ids_tt]
+# file_name_endings = ["train_ttW","val_ttW","test_ttW","train_tt","val_tt","test_tt"]
+ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW]
+file_name_endings = ["train_ttW","val_ttW","test_ttW"]
 
 
 for ids,ending in zip(ids_list,file_name_endings):
-	predict_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=False, standardize=True, data_path = "../data/particle_assignment_data_to_be_processed_ttH_ttZ/data")
-	write_to_file_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=True, standardize=False, data_path = "../data/particle_assignment_data_to_be_processed_ttH_ttZ/data")
+	predict_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=False, standardize=True, data_path="data/particle_assignment_data_to_be_processed_ttW_tt/data")
+	write_to_file_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=True, standardize=False, data_path="data/particle_assignment_data_to_be_processed_ttW_tt/data")
 
 	test_ones_diff = 0
 	test_samples_count = 0
@@ -419,93 +522,4 @@ for ids,ending in zip(ids_list,file_name_endings):
 	writer.writerows(data)
 	f.close()
 
-
-# In[ ]:
-
-# COMMENTED OUT ALL ttW tt FROM HERE TO THE BOTTOM OF THE CODE
-# """ Load wide selection ttW, tt data from files. """
-#
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_ttW.csv") as f:
-# 	lines_ttW = f.readlines()
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_tt.csv") as f:
-# 	lines_tt = f.readlines()
-#
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_ttW.csv") as f:
-# 	train_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_tt.csv") as f:
-# 	train_ids_tt = np.loadtxt(f, delimiter=",")
-#
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_ttW.csv") as f:
-# 	test_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_tt.csv") as f:
-# 	test_ids_tt = np.loadtxt(f, delimiter=",")
-#
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_ttW.csv") as f:
-# 	val_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_tt.csv") as f:
-# 	val_ids_tt = np.loadtxt(f, delimiter=",")
-#
-# lines = np.concatenate((lines_ttW,lines_tt), axis = 0)
-#
-# labels_dict = {}
-#
-# for line in lines:
-# 	row = np.fromstring(line, dtype=float, sep=',')
-# 	key = str(int(row[0]))
-# 	value = (row[1:]).reshape((int(len(row[1:])/5),5))
-# 	labels_dict[key] = value
-#
-#
-# # In[ ]:
-#
-#
-# """ Same as for narrow selection, but this time the wide selection ttW and tt is used. """
-#
-# ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW, train_ids_tt, val_ids_tt, test_ids_tt]
-# file_name_endings = ["train_ttW","val_ttW","test_ttW","train_tt","val_tt","test_tt"]
-#
-#
-# for ids,ending in zip(ids_list,file_name_endings):
-# 	predict_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=False, standardize=True, data_path="data/particle_assignment_data_to_be_processed_ttW_tt/data")
-# 	write_to_file_generator = DataGenerator(ids, labels_dict, batch_size=128, shuffle=False, write_to_file=True, standardize=False, data_path="data/particle_assignment_data_to_be_processed_ttW_tt/data")
-#
-# 	test_ones_diff = 0
-# 	test_samples_count = 0
-#
-# 	data = []
-# 	all_best_ys = []
-# 	all_best_possible_ys = []
-#
-# 	y_pred_best = []
-# 	y_true_best = []
-# 	for i in range(len(predict_generator)):
-# 		X_test = predict_generator[i][0]
-# 		y_test = predict_generator[i][1]
-#
-# 		X_to_file = write_to_file_generator[i][0]
-#
-# 		preds = model.predict(X_test)
-#
-# 		X_y_preds = np.concatenate((X_to_file, y_test, preds),axis=1)
-#
-# 		ids = np.unique(X_to_file[:,0])
-#
-# 		X_to_file = X_to_file[:,1:]
-#
-# 		for id in ids:
-# 			X_y_preds_all_combinations = np.array([row[1:] for row in X_y_preds if row[0] == id])
-# 			X_all_combinations = X_y_preds_all_combinations[:,:X_to_file.shape[1]]
-# 			preds_all_combinations = X_y_preds_all_combinations[:,X_to_file.shape[1]+y_test.shape[1]:]
-#
-# 			product = np.product(preds_all_combinations, axis=1)
-#
-# 			best_pred = preds_all_combinations[np.argmax(product)]
-# 			best_X = X_all_combinations[np.argmax(product)]
-#
-# 			data += [best_X.tolist() + best_pred.tolist()]
-#
-# 	f = open("../data/mass_reco/mass_reco_input_wide_selection_" + ending + ".csv", "w")
-# 	writer = csv.writer(f)
-# 	writer.writerow(column_labels_mass_reco)
-# 	writer.writerows(data)
-# 	f.close()
+print("finished")
