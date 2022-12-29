@@ -1,5 +1,5 @@
 Source codes and materials for the thesis Application of Machine Learning for the Higgs Boson Mass Reconstruction Using ATLAS Data
-For instructions on how to run this code, please refer to the file ttHMassRecoDocs.docx
+For instructions on how to run this code, please refer to the file ttHMassRecoDocs.pdf
 
 ./data is a folder that will contain all csv and numpy files used by the NNs
 
