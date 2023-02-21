@@ -90,49 +90,37 @@ class DataGenerator(keras.utils.Sequence):
 		with open(scaler[0]) as f:
 			scaler_params = np.loadtxt(f, delimiter=",")
 			self.X_scaler = scaler_params[0:2,:]
-			print("Xscaler param")
-			print(self.X_scaler.shape)
 
-			print("new Xscaler param")
-			print(self.X_scaler.shape)
 		with open(scaler[1]) as f:
 			scaler_params = np.loadtxt(f, delimiter=",")
 			self.y_scaler = scaler_params[0:2]
-		print("GOT TO HERE")
+		
 		self.on_epoch_end()
 		print("end on epoch end")
 
 	def __len__(self):
 		'Denotes the number of batches per epoch'
-		print("printing in length")
+
 		if self.ceil:
-			# print(int(np.ceil(len(self.X) / self.batch_size)))
 			return int(np.ceil(len(self.X) / self.batch_size))
-		# print(int(np.ceil(len(self.X) / self.batch_size)))
 		return int(np.floor(len(self.X) / self.batch_size))
 
 	def __getitem__(self, index):
 		'Generate one batch of data'
-		print("here in getitem")
 		# Generate indexes of the batch
 		indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
 		# Generate data
 		X, y, weights = self.__data_generation(indexes)
-		# print(weights)
 		return X, y, weights
 
 	def on_epoch_end(self):
 		'Updates indexes after each epoch'
-		print("here on epoch end")
-		print(self.shuffle)
 		if self.shuffle == True:
-			print("here")
-			# np.random.shuffle(self.indexes)
+			np.random.shuffle(self.indexes)
 
 	def __data_generation(self, indexes):
 		'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
-		print("here in data generation")
 
 		# is indexes a list of all the cols of the feature names we want to use?
 		X = self.X[indexes]
@@ -144,19 +132,10 @@ class DataGenerator(keras.utils.Sequence):
 
 		if self.augmentation:
 			X = data_rotation(X, num_vectors_X = 11, met = True)
-		print(self.X_scaler.shape)
-		print(self.y_scaler.shape)
-		print(X.shape)
-		print(y.shape)
-
 
 		# THESE LINES SHOULD ONLY BE COMMENTED OUT TO TRAIN THE SCALAR
 		X = (X-self.X_scaler[0])/self.X_scaler[1]     # Standardize
 		y = (y-self.y_scaler[0])/self.y_scaler[1]     # Standardize
-
-		print("XSHAPE")
-		print(X.shape)
-		print(weights)
 
 		return X, y, weights
 
@@ -182,9 +161,6 @@ def add_weights(tth,ttz):
 	weight_tth = 1/(2*len(tth)/(len(ttz)+len(tth)))
 	weight_ttz = 1/(2*len(ttz)/(len(ttz)+len(tth)))
 
-	print(weight_tth)
-	print(weight_ttz)
-
 	ones = np.ones((tth.shape[0],1))
 	tth = np.concatenate((tth, weight_tth*ones),axis=1)
 
@@ -197,7 +173,6 @@ def add_weights(tth,ttz):
 # 	""" Class weights, because of the imbalance between the productions' number of events. """
 # 	weight_tth = 1/(2*len(tth)/(len(tth)))
 #
-# 	print(weight_tth)
 #
 # 	ones = np.ones((tth.shape[0],1))
 # 	tth = np.concatenate((tth, weight_tth*ones),axis=1)
@@ -208,17 +183,6 @@ with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as
 	X_y_train_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
 with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttZ.csv") as f:
 	X_y_train_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
-
-print(X_y_train_ttH)
-print(type(X_y_train_ttH))
-
-
-# print("printing features:")
-# print(train_ttH_features)
-# print(" ")
-# print("printing xytrain:")
-# print(X_y_train_ttH)
-# print("shape of xytrain:")
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv") as f:
 	X_y_test_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
@@ -232,9 +196,7 @@ with open("../data/mass_reco/mass_reco_input_narrow_selection_val_ttZ.csv") as f
 
 
 feature_names = pd.read_csv("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv", nrows=1)
-print(feature_names)
 feature_names = list(feature_names.columns)
-print(feature_names)
 
 
 # removing features based on permutation feature importance
@@ -297,13 +259,10 @@ for i in range(len(y_test)):
 num_features = X_train.shape[1]-1   # exclude weights
 num_samples = X_train.shape[0]
 
-print(num_features,num_samples)
-
 
 # %%
 # batch size 4096
 train_generator = DataGenerator(X_train, y_train_masses, n_features = num_features, batch_size=939, shuffle=True, augmentation = True, ceil = False)
-print("done with train_generator")
 #batch size 128
 val_generator = DataGenerator(X_val, y_val_masses, n_features = num_features, batch_size=117, shuffle=False, augmentation = False, ceil = True)
 test_generator = DataGenerator(X_test, y_test_masses, n_features = num_features, batch_size=117, shuffle=False, augmentation = False, ceil = True)
@@ -343,7 +302,7 @@ y_train_masses = y_train_masses[1:,:]
 # writer.writerow(y_scaler.mean_)
 # writer.writerow(y_scaler.scale_)
 # f.close()
-# print("got to the end of scaler training")
+# print("end of scaler training")
 # %%
 """ Define NN architecture. """
 def baseline_model(num_features):
@@ -539,8 +498,6 @@ max_mass = np.max(np.concatenate((ttH_y_pred, ttZ_y_pred)))
 
 bg_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttZ_y_pred)
 h_weight = (len(ttZ_y_pred)+len(ttH_y_pred))/2/len(ttH_y_pred)
-print(h_weight)
-print(bg_weight)
 
 n_steps = 1000
 step_size = (max_mass-min_mass)/n_steps
@@ -575,19 +532,10 @@ steps = steps/1000
 correct_h /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
 correct_bg /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
 
-# print("type of correct h and correct bg")
-# print(correct_h)
-# print(correct_bg)
-print("area under the curve")
-
 correct_h_area = np.trapz(correct_h, steps)
 correct_bg_area = np.trapz(correct_bg, steps)
 correct_weighted_area = np.trapz(h_weight*correct_h + bg_weight*correct_bg, steps)
 
-
-print(correct_h_area)
-print(correct_bg_area)
-print(correct_weighted_area)
 
 legend_h = "correct Higgs (area: " + str(round(correct_h_area, 2)) + " )"
 legend_bg = "correct background (area: " + str(round(correct_bg_area, 2)) + " )"
@@ -642,7 +590,6 @@ weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
 
 ttZ = root.TH1F("ttZ","",20,80,140)
 # root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
-# not sure how to handle the weights
 for xeach, weight in zip((ttZ_y_pred.flatten()/1000), weights):
     ttZ.Fill(xeach*weight)
 
