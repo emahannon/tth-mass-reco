@@ -12,6 +12,9 @@ from os.path import isfile,isdir,join
 	data. For real data, see real_root_data_extraction.py
 	Note: some lines have been commented out where data is missing or non-essential."""
 
+""" The "magic numbers" being used here in reference to particle ID have to do
+	with the Monte Carlo simulation numbering scheme (pythia particle id)."""
+
 def extract_main_particle_from_truth_event(event, main_particle_id):
 
 	truth_information = TruthEvent()
@@ -841,11 +844,15 @@ if __name__ == "__main__":
 		counter = 1
 		for file_name in file_names:
 			print("got to here 2")
-			extract_data(file_name, counter, "../data/particle_assignment_training_data", prod, True)
+			# LAST PARAMETER MUST BE TRUE FOR EXTRACTING ttH FOR PARTICLE ASSIGNMENT
+			xtract_data(file_name, counter, "../data/particle_assignment_training_data", prod, True)
+			# extract_data(file_name, counter, "../data/particle_assignment_training_data", prod, False)
 			print("got to here")
 			counter += 1
 
 		print("done")
+
+		# FileNotFoundError: [Errno 2] No such file or directory: 'data/mass_reco/mass_reco_input_narrow_selection_btags_test_ttZ.csv'
 
 
 

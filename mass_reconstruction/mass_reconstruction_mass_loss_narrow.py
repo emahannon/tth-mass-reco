@@ -8,11 +8,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import random
+import seaborn as sns
+import sys
 import tensorflow as tf
 import time
 import shap
 import ROOT as root
 from sklearn.preprocessing import StandardScaler
+from sklearn.inspection import permutation_importance
 
 from keras import optimizers
 from keras.regularizers import l2
@@ -83,6 +86,7 @@ class DataGenerator(keras.utils.Sequence):
 		self.augmentation = augmentation
 		self.ceil = ceil
 		self.indexes = np.arange(len(X))
+
 		with open(scaler[0]) as f:
 			scaler_params = np.loadtxt(f, delimiter=",")
 			self.X_scaler = scaler_params[0:2,:]
@@ -129,6 +133,8 @@ class DataGenerator(keras.utils.Sequence):
 	def __data_generation(self, indexes):
 		'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
 		print("here in data generation")
+
+		# is indexes a list of all the cols of the feature names we want to use?
 		X = self.X[indexes]
 
 		weights = X[:,-1]
@@ -142,6 +148,8 @@ class DataGenerator(keras.utils.Sequence):
 		print(self.y_scaler.shape)
 		print(X.shape)
 		print(y.shape)
+
+
 		# THESE LINES SHOULD ONLY BE COMMENTED OUT TO TRAIN THE SCALAR
 		X = (X-self.X_scaler[0])/self.X_scaler[1]     # Standardize
 		y = (y-self.y_scaler[0])/self.y_scaler[1]     # Standardize
@@ -201,47 +209,61 @@ with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttH.csv") as
 with open("../data/mass_reco/mass_reco_input_narrow_selection_train_ttZ.csv") as f:
 	X_y_train_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
 
-print("printing features:")
-print(train_ttH_features)
-print(" ")
-print("printing xytrain:")
 print(X_y_train_ttH)
-print("shape of xytrain:")
+print(type(X_y_train_ttH))
+
+
+# print("printing features:")
+# print(train_ttH_features)
+# print(" ")
+# print("printing xytrain:")
+# print(X_y_train_ttH)
+# print("shape of xytrain:")
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv") as f:
 	X_y_test_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
-with open("data/mass_reco/mass_reco_input_narrow_selection_btags_test_ttZ.csv") as f:
+with open("../data/mass_reco/mass_reco_input_narrow_selection_test_ttZ.csv") as f:
 	X_y_test_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
 
 with open("../data/mass_reco/mass_reco_input_narrow_selection_val_ttH.csv") as f:
 	X_y_val_ttH = np.loadtxt(f, delimiter=",", skiprows=1)
-with open("data/mass_reco/mass_reco_input_narrow_selection_btags_val_ttZ.csv") as f:
+with open("../data/mass_reco/mass_reco_input_narrow_selection_val_ttZ.csv") as f:
 	X_y_val_ttZ = np.loadtxt(f, delimiter=",", skiprows=1)
+
+
+feature_names = pd.read_csv("../data/mass_reco/mass_reco_input_narrow_selection_test_ttH.csv", nrows=1)
+print(feature_names)
+feature_names = list(feature_names.columns)
+print(feature_names)
+
+
+# removing features based on permutation feature importance
+# here, we only remove features that are 0 or close to 0
+# EVERY TIME WE REMOVE/ADD FEATURES WE NEED TO RETRAIN THE SCALER
+# bad_features = ['top W q2 pz', 'visible main E', 'hadr tau E', 'top W q2 E', 'visible antitop E', 'top W q1 E', 'antitop b E', 'top b E', 'antitop lepton E', 'top E', 'main lepton E', 'true main px', 'true main py', 'top W E', 'antitop b pz']
+# temp = set(bad_features)
+# index_bad_features = [i for i, val in enumerate(feature_names) if val in temp]
+# print(index_bad_features)
+
+# X_y_train_ttH = np.delete(X_y_train_ttH, index_bad_features, axis=1)
+# X_y_train_ttZ = np.delete(X_y_train_ttZ, index_bad_features, axis=1)
+
+# X_y_test_ttH = np.delete(X_y_test_ttH, index_bad_features, axis=1)
+# X_y_test_ttZ = np.delete(X_y_test_ttZ, index_bad_features, axis=1)
+
+# X_y_val_ttH = np.delete(X_y_val_ttH, index_bad_features, axis=1)
+# X_y_val_ttZ = np.delete(X_y_val_ttZ, index_bad_features, axis=1)
+
+
+
 
 
 X_y_train_ttH, X_y_train_ttZ = add_weights(X_y_train_ttH, X_y_train_ttZ)    # Add weights to the data
 X_y_train = np.concatenate((X_y_train_ttH, X_y_train_ttZ), axis=0)          # Combine ttH and ttZ for training.
-# X_y_train_ttH = add_weights(X_y_train_ttH)    # Add weights to the data
-# X_y_train = np.concatenate((X_y_train_ttH), axis=0)
 X_train = np.concatenate((X_y_train[:,:-10], X_y_train[:,-6:]), axis = 1)   # Seprate X ...
 y_train = X_y_train[:,-10:-6]                                               # ... and y.
 y_train_masses = np.empty((y_train.shape[0],1))                             # From y we will calculate masses - we use those as labels.
 
-# getting a list of features for ttH
-X_train_features = np.concatenate((train_ttH_features[:-10], train_ttH_features[-6:]), axis = 0)
-y_train_features = train_ttH_features[-10:-6]
-
-print("PRINTING X TRAIN FEATURES")
-print(X_train_features)
-print("PRINTING Y TRAIN FEATURES")
-print(y_train_features)
-
-# # REMOVED TTZ RELAVENT INFORMATION FROM THE CODE ABOVE
-# X_y_train_ttH = add_weights(X_y_train_ttH)    # Add weights to the data
-# X_y_train = np.concatenate((X_y_train_ttH), axis=0)
-# X_train = np.concatenate((X_y_train[:], X_y_train[:]), axis = 0)   # Seprate X ...
-# y_train = X_y_train[:]                                               # ... and y.
-# y_train_masses = np.empty((y_train.shape[0],1))
 vec = TLorentzVector(0,0,0,0)
 for i in range(len(y_train)):              # For each event calculate the Higgs/Z boson mass.
 	v = y_train[i]
@@ -249,8 +271,6 @@ for i in range(len(y_train)):              # For each event calculate the Higgs/
 	y_train_masses[i] = vec.Mag()
 
 X_y_val_ttH, X_y_val_ttZ = add_weights(X_y_val_ttH, X_y_val_ttZ)    # Repeat for val and test...
-# X_y_val_ttH = add_weights(X_y_val_ttH)    # Repeat for val and test...
-# X_y_val_ttH, X_y_val_ttZ = add_weights(X_y_val_ttH, X_y_val_ttZ)
 X_y_val = np.concatenate((X_y_val_ttH, X_y_val_ttZ), axis=0)
 X_val = np.concatenate((X_y_val[:,:-10], X_y_val[:,-6:]), axis = 1)
 y_val = X_y_val[:,-10:-6]
@@ -292,19 +312,21 @@ test_generator = DataGenerator(X_test, y_test_masses, n_features = num_features,
 """ Get scaler params... """
 # # THIS SHOULD BE COMMENTED OUT DURING A REGULAR RUN
 # # AND UNCOMMENTED TO RETRAIN THE SCALER
-# X_train = np.empty((num_samples,num_features), dtype=float)
-# y_train_masses = np.empty((num_samples,1), dtype=float)
-# c = 0
+X_train = np.empty((num_samples,num_features), dtype=float)
+y_train_masses = np.empty((num_samples,1), dtype=float)
+c = 0
 
-# for i in range(len(train_generator)):
-# 	rows = len(train_generator[i][0][:])
+for i in range(len(train_generator)):
+	rows = len(train_generator[i][0][:])
 
-# 	X_train[c:c+rows,:] = train_generator[i][0][:]
-# 	y_train_masses[c:c+rows,:] = train_generator[i][1][:]
-# 	c += rows
+	X_train[c:c+rows,:] = train_generator[i][0][:]
+	y_train_masses[c:c+rows,:] = train_generator[i][1][:]
+	c += rows
 
-# X_train = X_train[1:,:]
-# y_train_masses = y_train_masses[1:,:]
+X_train = X_train[1:,:]
+y_train_masses = y_train_masses[1:,:]
+
+# comment this part out when not training the scaler
 # X_scaler = StandardScaler()
 # y_scaler = StandardScaler()
 # X_scaler = X_scaler.fit(X_train)
@@ -369,6 +391,51 @@ callback1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, re
 callback2 = tf.keras.callbacks.LearningRateScheduler(scheduler)
 history = model.fit(x=train_generator, validation_data = val_generator, epochs=300, verbose=1, callbacks = [callback1, callback2])
 
+
+# # Feature importance implementation
+# # TAKES A LONG TIME TO RUN, COMMENT OUT UNLESS USING
+# print("training finished, calculating feature importance...\n")
+# print("feature names")
+# print(len(feature_names))
+# feature_nums = range(len(feature_names))
+# print(feature_nums)
+# # myX_train = np.delete(X_train, -1, axis=1) #X_train[:-1] # omit the last character in the array, this should be the weights
+# # print(X_train.shape)
+# # print(myX_train.shape)
+# # print(y_train.shape)
+# # print(y_train_masses.shape)
+# # print(myX_train)
+# # print(y_train_masses)
+# #
+# # myX_train = myX_train.astype(np.float64)
+# # y_train_masses = y_train_masses.astype(np.float64)
+# # print(np.argwhere(np.isnan(myX_train)))
+# # print(np.argwhere(np.isnan(y_train_masses)))
+
+
+
+# results = permutation_importance(model, X_train, y_train_masses, scoring='neg_mean_squared_error', n_repeats=50)
+# importances = results.importances_mean
+
+# print(importances.dtype)
+# print(importances)
+# print(importances.shape)
+# print(len(feature_names))
+# print(feature_names)
+# importances_pd = pd.DataFrame(data={
+# 	'Attribute': feature_names,
+# 	'Importance': importances
+# })
+# importances_pd = importances_pd.sort_values(by='Importance', ascending=False)
+# print(importances_pd.Importance)
+# plt.bar(x=importances_pd['Attribute'], height=importances_pd['Importance'], color='#087E8B')
+# # plt.bar([x for x in range(len(importances))], importances)
+# plt.title('Feature Importances Obtained by Permutation', size=10)
+# plt.xticks(fontsize=5, rotation='vertical')
+# # plt.subplots_adjust(bottom=0.15)
+# plt.savefig('figures/PA_FeatureImportance.pdf', bbox_inches="tight")
+# print(feature_names)
+
 # %%
 """ Training history plot. """
 
@@ -396,12 +463,12 @@ from scipy.stats import crystalball, norm
 ttH_eval_generator = DataGenerator(np.concatenate((X_y_test_ttH[:,:-10], X_y_test_ttH[:,-6:]), axis = 1), y_test_masses[:len(X_y_test_ttH)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
 ttZ_eval_generator = DataGenerator(np.concatenate((X_y_test_ttZ[:,:-10], X_y_test_ttZ[:,-6:]), axis = 1), y_test_masses[len(X_y_test_ttH):len(X_y_test_ttH)+len(X_y_test_ttZ)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
 
-ttH_y_pred = model.predict(ttH_eval_generator)
+ttH_y_pred = model.predict(ttH_eval_generator) # THIS IS WHERE WE PREDICT
 X_y = ttH_eval_generator.get_all()
 ttH_X_eval = X_y[0]
 ttH_y_true = X_y[1]
 
-ttZ_y_pred = model.predict(ttZ_eval_generator)
+ttZ_y_pred = model.predict(ttZ_eval_generator) # THIS IS WHERE WE PREDICT
 X_y = ttZ_eval_generator.get_all()
 ttZ_X_eval = X_y[0]
 ttZ_y_true = X_y[1]
@@ -508,6 +575,29 @@ steps = steps/1000
 correct_h /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
 correct_bg /= (len(ttH_y_pred)+len(ttZ_y_pred))/100
 
+# print("type of correct h and correct bg")
+# print(correct_h)
+# print(correct_bg)
+print("area under the curve")
+
+correct_h_area = np.trapz(correct_h, steps)
+correct_bg_area = np.trapz(correct_bg, steps)
+correct_weighted_area = np.trapz(h_weight*correct_h + bg_weight*correct_bg, steps)
+
+
+print(correct_h_area)
+print(correct_bg_area)
+print(correct_weighted_area)
+
+legend_h = "correct Higgs (area: " + str(round(correct_h_area, 2)) + " )"
+legend_bg = "correct background (area: " + str(round(correct_bg_area, 2)) + " )"
+legend_weighted = "weighted correct total (area: " + str(round(correct_weighted_area, 2)) + " )"
+
+np.save('samples/correct_h_regular4', correct_h)
+np.save('samples/correct_bg_regular4', correct_bg)
+np.save('samples/correct_weighted_regular4', h_weight*correct_h + bg_weight*correct_bg)
+np.save('samples/correct_steps_regular4', steps)
+
 plt.figure(figsize=(12,8))
 plt.plot(steps, correct_h, linewidth=3, color='blue')
 plt.plot(steps, correct_bg, linewidth=3, color='orange')
@@ -515,7 +605,7 @@ plt.plot(steps, h_weight*correct_h + bg_weight*correct_bg, linewidth=3, color='m
 plt.title("Mass reconstruction separation curve - NN")
 plt.xlabel("separation mass [GeV]")
 plt.ylabel("percentage correct [%]")
-plt.legend(["correct Higgs","correct background","weighted correct total"])
+plt.legend([legend_h, legend_bg, legend_weighted])
 plt.grid()
 plt.savefig("../figures/mass_histo_narrow_separation_btags.pdf")
 plt.show()
@@ -524,7 +614,7 @@ print(np.max(h_weight*correct_h + bg_weight*correct_bg))
 # %%
 """ ROOT histogram. """
 import atlasplots as aplt
-import root_numpy
+# import root_numpy
 from ROOT import TF1, TLine
 
 aplt.set_atlas_style()
@@ -543,23 +633,28 @@ gauss_fit_2 = TF1("gauss_fit_2","gaus(0)",80,140)
 gauss_fit_2.SetParameters(1, 1, 1)
 
 ttH = root.TH1F("ttH","",20,80,140)
-root_numpy.fill_hist(ttH, ttH_y_pred.flatten()/1000)
+# root_numpy.fill_hist(ttH, ttH_y_pred.flatten()/1000)
+for xeach in (ttH_y_pred.flatten()/1000):
+    ttH.Fill(xeach)
 
 # weights are only necessary if you have ttZ information
 weights = np.ones(len(ttZ_y_pred))*(len(ttH_y_pred)/len(ttZ_y_pred))
 
 ttZ = root.TH1F("ttZ","",20,80,140)
-root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
+# root_numpy.fill_hist(ttZ, ttZ_y_pred.flatten()/1000, weights)
+# not sure how to handle the weights
+for xeach, weight in zip((ttZ_y_pred.flatten()/1000), weights):
+    ttZ.Fill(xeach*weight)
 
 fig, ax = aplt.subplots(1, 1)
 
 ttH.Fit("gauss_fit_2","0")
 gauss_fit_2.SetNpx(1000)
-# ax.plot(gauss_fit_2, label="Fit", labelfmt="L", linecolor=root.kRed+1, linewidth=3)
+ax.plot(gauss_fit_2, label="Fit", labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
 ttZ.Fit("gauss_fit_1","0")
 gauss_fit_1.SetNpx(1000)
-#ax.plot(gauss_fit_1, label=None, labelfmt="L", linecolor=root.kRed+1, linewidth=3)
+ax.plot(gauss_fit_1, label=None, labelfmt="L", linecolor=root.kRed+1, linewidth=3)
 
 ttH_fit = ttH.GetFunction("gauss_fit_2")
 print(ttH_fit.GetParameter(0))
@@ -568,7 +663,7 @@ print(ttH_fit.GetParameter(2))
 ax.plot(H_line, linecolor='black', label=None, labelfmt="L")
 ax.plot(Z_line, linecolor='black', label=None, labelfmt="L")
 ax.plot(ttH, linecolor='blue', linewidth=3, label="ttH", labelfmt="L")
-# ax.plot(ttZ, linecolor=807, linewidth=3, label="ttZ", labelfmt="L")
+ax.plot(ttZ, linecolor=807, linewidth=3, label="ttZ", labelfmt="L")
 ax.set_xlim(80, 140)
 ax.set_ylim(0, 380)
 ax.set_xlabel("Mass [GeV]")

@@ -417,7 +417,7 @@ for ids,ending in zip(ids_list,file_name_endings):
 			best_X = X_all_combinations[np.argmax(product)]
 
 			data += [best_X.tolist() + best_pred.tolist()]
-		print("processing wide selection")
+		print("processing wide selection tth ttz")
 
 	f = open("../data/mass_reco/mass_reco_input_wide_selection_" + ending + ".csv", "w")
 	writer = csv.writer(f)
@@ -432,49 +432,49 @@ for ids,ending in zip(ids_list,file_name_endings):
 # COMMENTED OUT ALL ttW tt FROM HERE TO THE BOTTOM OF THE CODE
 # """ Load wide selection ttW, tt data from files. """
 #
-with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_ttW.csv") as f:
-	lines_ttW = f.readlines()
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_tt.csv") as f:
-# 	lines_tt = f.readlines()
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_ttW.csv") as f:
+# 	lines_ttW = f.readlines()
+# # with open("../data/particle_assignment_data_to_be_processed_ttW_tt/labels_dict_tt.csv") as f:
+# # 	lines_tt = f.readlines()
+# #
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_ttW.csv") as f:
+# 	train_ids_ttW = np.loadtxt(f, delimiter=",")
+# # with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_tt.csv") as f:
+# # 	train_ids_tt = np.loadtxt(f, delimiter=",")
+# #
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_ttW.csv") as f:
+# 	test_ids_ttW = np.loadtxt(f, delimiter=",")
+# # with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_tt.csv") as f:
+# # 	test_ids_tt = np.loadtxt(f, delimiter=",")
+# #
+# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_ttW.csv") as f:
+# 	val_ids_ttW = np.loadtxt(f, delimiter=",")
+# # with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_tt.csv") as f:
+# # 	val_ids_tt = np.loadtxt(f, delimiter=",")
+# #
+# # lines = np.concatenate((lines_ttW,lines_tt), axis = 0)
+# lines = np.concatenate((lines_ttW), axis = 0)
 #
-with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_ttW.csv") as f:
-	train_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/train_ids_tt.csv") as f:
-# 	train_ids_tt = np.loadtxt(f, delimiter=",")
+# labels_dict = {}
 #
-with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_ttW.csv") as f:
-	test_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/test_ids_tt.csv") as f:
-# 	test_ids_tt = np.loadtxt(f, delimiter=",")
+# for line in lines:
+# 	row = np.fromstring(line, dtype=float, sep=',')
+# 	key = str(int(row[0]))
+# 	value = (row[1:]).reshape((int(len(row[1:])/5),5))
+# 	labels_dict[key] = value
 #
-with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_ttW.csv") as f:
-	val_ids_ttW = np.loadtxt(f, delimiter=",")
-# with open("../data/particle_assignment_data_to_be_processed_ttW_tt/val_ids_tt.csv") as f:
-# 	val_ids_tt = np.loadtxt(f, delimiter=",")
-#
-# lines = np.concatenate((lines_ttW,lines_tt), axis = 0)
-lines = np.concatenate((lines_ttW), axis = 0)
-
-labels_dict = {}
-
-for line in lines:
-	row = np.fromstring(line, dtype=float, sep=',')
-	key = str(int(row[0]))
-	value = (row[1:]).reshape((int(len(row[1:])/5),5))
-	labels_dict[key] = value
-
-print("loading wide selection ttW")
-#
+# print("loading wide selection ttW")
+# #
 #
 # # In[ ]:
 #
 #
 # """ Same as for narrow selection, but this time the wide selection ttW and tt is used. """
 #
-# ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW, train_ids_tt, val_ids_tt, test_ids_tt]
-# file_name_endings = ["train_ttW","val_ttW","test_ttW","train_tt","val_tt","test_tt"]
-ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW]
-file_name_endings = ["train_ttW","val_ttW","test_ttW"]
+## ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW, train_ids_tt, val_ids_tt, test_ids_tt]
+## file_name_endings = ["train_ttW","val_ttW","test_ttW","train_tt","val_tt","test_tt"]
+# ids_list = [train_ids_ttW, val_ids_ttW, test_ids_ttW]
+# file_name_endings = ["train_ttW","val_ttW","test_ttW"]
 
 
 for ids,ending in zip(ids_list,file_name_endings):
