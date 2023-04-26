@@ -27,6 +27,29 @@ from keras import activations
 
 from tensorflow.keras import Sequential
 
+
+# imports for pygad
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import sklearn as sk
+import matplotlib.pyplot as plt
+import math
+import multiprocessing
+import concurrent.futures
+import concurrent
+from multiprocessing import Process
+from concurrent.futures import ProcessPoolExecutor 
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
+import operator
+import time
+import tensorflow.keras
+import pygad.kerasga
+import numpy
+import pygad
+
+
 from ROOT import TFile, TLorentzVector
 
 from constants import *
@@ -311,94 +334,204 @@ y_train_masses = y_train_masses[1:,:]
 # writer.writerow(y_scaler.scale_)
 # f.close()
 # print("end of scaler training")
-# %%
-""" Define NN architecture. """
-def baseline_model(num_features):
+# # %%
+# """ Define NN architecture. """
+# def baseline_model(num_features):
 
-	i = keras.Input(shape = (num_features,))
-	dropout_1 = Dropout(0.2)(i)
-	dense_1 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_1)
-	relu_1 = Activation(activations.relu)(dense_1)
+# 	i = keras.Input(shape = (num_features,))
+# 	dropout_1 = Dropout(0.2)(i)
+# 	dense_1 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_1)
+# 	relu_1 = Activation(activations.relu)(dense_1)
 
-	dropout_2 = Dropout(0.2)(relu_1)
-	dense_2 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_2)
-	relu_2 = Activation(activations.relu)(dense_2)
+# 	dropout_2 = Dropout(0.2)(relu_1)
+# 	dense_2 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_2)
+# 	relu_2 = Activation(activations.relu)(dense_2)
 
-	dropout_3 = Dropout(0.2)(relu_2)
-	dense_3 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_3)
-	relu_3 = Activation(activations.relu)(dense_3)
+# 	dropout_3 = Dropout(0.2)(relu_2)
+# 	dense_3 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_3)
+# 	relu_3 = Activation(activations.relu)(dense_3)
 
-	dropout_4 = Dropout(0.2)(relu_3)
-	dense_4 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_4)
-	relu_4 = Activation(activations.relu)(dense_4)
+# 	dropout_4 = Dropout(0.2)(relu_3)
+# 	dense_4 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_4)
+# 	relu_4 = Activation(activations.relu)(dense_4)
 
-	dropout_5 = Dropout(0.2)(relu_4)
-	dense_5 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_5)
-	relu_5 = Activation(activations.relu)(dense_5)
+# 	dropout_5 = Dropout(0.2)(relu_4)
+# 	dense_5 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_5)
+# 	relu_5 = Activation(activations.relu)(dense_5)
 
-	dropout_6 = Dropout(0.2)(relu_5)
-	dense_6 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_6)
-	relu_6 = Activation(activations.relu)(dense_6)
+# 	dropout_6 = Dropout(0.2)(relu_5)
+# 	dense_6 = Dense(10*num_features, kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_6)
+# 	relu_6 = Activation(activations.relu)(dense_6)
 
-	dropout_7 = Dropout(0.2)(relu_6)
-	o = Dense(1, activation='linear', kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_7)
+# 	dropout_7 = Dropout(0.2)(relu_6)
+# 	o = Dense(1, activation='linear', kernel_regularizer=l2(0.001), bias_regularizer=l2(0.001))(dropout_7)
 
-	model = keras.Model(i, o)
-	model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
-	model.summary()
-	return model
+# 	model = keras.Model(i, o)
+# 	model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
+# 	model.summary()
+# 	return model
 
-def scheduler(epoch, lr):
-	return lr * 0.99
-
-
+# def scheduler(epoch, lr):
+# 	return lr * 0.99
 
 
-# tf sequential model (I only pray some of the code I write today will work)
-model = Sequential()
-# first layer
-model.add(Dropout(0.2, input_shape = (num_features,) ))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
 
-# second layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
 
-# third layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
+# # tf sequential model (I only pray some of the code I write today will work)
+# model = Sequential()
+# # first layer
+# model.add(Dropout(0.2, input_shape = (num_features,) ))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
 
-# fourth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
+# # second layer
+# model.add(Dropout(0.2))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
 
-# fifth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
+# # third layer
+# model.add(Dropout(0.2))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
 
-# sixth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
+# # fourth layer
+# model.add(Dropout(0.2))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
 
-# seventh layer
-model.add(Dropout(0.2))
-model.add(Dense(1, activation='linear'))
+# # fifth layer
+# model.add(Dropout(0.2))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
 
-model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
-model.summary()
+# # sixth layer
+# model.add(Dropout(0.2))
+# model.add(Dense(10*num_features))
+# model.add(Activation(activations.relu))
+
+# # seventh layer
+# model.add(Dropout(0.2))
+# model.add(Dense(1, activation='linear'))
+
+# model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
+# model.summary()
 
 # %%
 """ Training. Callbacks used are learning rate decay and early stopping. """
 # model = baseline_model(num_features)
-callback1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-callback2 = tf.keras.callbacks.LearningRateScheduler(scheduler)
-history = model.fit(x=train_generator, validation_data = val_generator, epochs=300, verbose=1, callbacks = [callback1, callback2])
+# callback1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+# callback2 = tf.keras.callbacks.LearningRateScheduler(scheduler)
+# history = model.fit(x=train_generator, validation_data = val_generator, epochs=300, verbose=1, callbacks = [callback1, callback2])
+
+# ----------------------------------------------------------------------------------
+# BEGINNING OF PYGAD CODE
+
+def fitness_func(ga_instance, solution, sol_idx):
+    global data_inputs, data_outputs, keras_ga, model
+
+    predictions = pygad.kerasga.predict(model=model,
+                                        solution=solution,
+                                        data=data_inputs)
+
+    mse = tensorflow.keras.losses.MeanSquaredError()
+    mse_error = mse(data_outputs, predictions).numpy() + 0.00000001
+    solution_fitness = 1.0/mse_error
+
+    return solution_fitness
+
+def callback_generation(ga_instance):
+    print("Generation = {generation}".format(generation=ga_instance.generations_completed))
+    print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]))
+
+#input_layer  = tensorflow.keras.layers.Input(1) # Changed 3 to 1
+#dense_layer1 = tensorflow.keras.layers.Dense(5, activation="relu")(input_layer)
+#output_layer = tensorflow.keras.layers.Dense(1, activation="linear")(dense_layer1)
+
+input_layer = tensorflow.keras.layers.Input(shape = (num_features,))
+dropout_1 = tensorflow.keras.layers.Dropout(0.2)(input_layer)
+dense_1 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_1)
+relu_1 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_1)
+
+dropout_2 = tensorflow.keras.layers.Dropout(0.2)(relu_1)
+dense_2 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_2)
+relu_2 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_2)
+
+dropout_3 = tensorflow.keras.layers.Dropout(0.2)(relu_2)
+dense_3 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_3)
+relu_3 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_3)
+
+dropout_4 = tensorflow.keras.layers.Dropout(0.2)(relu_3)
+dense_4 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_4)
+relu_4 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_4)
+
+dropout_5 = tensorflow.keras.layers.Dropout(0.2)(relu_4)
+dense_5 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_5)
+relu_5 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_5)
+
+dropout_6 = tensorflow.keras.layers.Dropout(0.2)(relu_5)
+dense_6 = tensorflow.keras.layers.Dense(10*num_features, kernel_regularizer = l2(0.001), bias_regularizer = l2(0.001))(dropout_6)
+relu_6 = tensorflow.keras.layers.Activation(tf.keras.activations.relu)(dense_6)
+
+dropout_7 = tensorflow.keras.layers.Dropout(0.2)(relu_6)
+output_layer = tensorflow.keras.layers.Dense(1, activation=tf.keras.activations.linear, kernel_regularizer=l2(0.001), bias_regularizer = l2(0.001))(dropout_7)
+
+model = tensorflow.keras.Model(inputs=input_layer, outputs=output_layer)
+
+keras_ga = pygad.kerasga.KerasGA(model=model,
+                                 num_solutions=10)
+
+# Data inputs
+#data_inputs = numpy.array([[0.02, 0.1, 0.15],
+#                           [0.7, 0.6, 0.8],
+#                           [1.5, 1.2, 1.7],
+#                           [3.2, 2.9, 3.1]])
+
+data_inputs = X_train
+
+# Data outputs
+#data_outputs = numpy.array([[0.1],
+#                            [0.6],
+#                            [1.3],
+#                            [2.5]])
+data_outputs = y_train_masses
+
+num_generations = 100 # Number of generations.
+num_parents_mating = 5 # Number of solutions to be selected as parents in the mating pool.
+initial_population = keras_ga.population_weights # Initial population of network weights
+
+ga_instance = pygad.GA(num_generations=num_generations,
+                       num_parents_mating=num_parents_mating,
+                       initial_population=initial_population,
+                       fitness_func=fitness_func,
+                       on_generation=callback_generation,
+                       stop_criteria = "saturate_7",
+					   parallel_processing=10)
+
+ga_instance.run()
+
+# After the generations complete, some plots are showed that summarize how the outputs/fitness values evolve over generations.
+ga_instance.plot_fitness(title="Iteration vs. Fitness", linewidth=4)
+
+# Returning the details of the best solution.
+solution, solution_fitness, solution_idx = ga_instance.best_solution()
+# Implement a prediction method here
+print("Fitness value of the best solution = {solution_fitness}".format(solution_fitness=solution_fitness))
+print("Index of the best solution : {solution_idx}".format(solution_idx=solution_idx))
+
+# Make prediction based on the best solution.
+predictions = pygad.kerasga.predict(model=model,
+                                    solution=solution,
+                                    data=X_test) # Changed from data inputs
+
+print("Predictions : \n", predictions)
+
+mse = tensorflow.keras.losses.MeanSquaredError()
+mse_error = mse(y_test_masses, predictions).numpy() # Changed data outputs to y_test
+print("Mean Sqaured Error : ", mse_error)  # Changed all instances of MAE to MSE
+
+
+# ----------------------------------------------------------------------------------
+
 
 
 # # Feature importance implementation
@@ -472,6 +605,8 @@ from scipy.stats import crystalball, norm
 ttH_eval_generator = DataGenerator(np.concatenate((X_y_test_ttH[:,:-10], X_y_test_ttH[:,-6:]), axis = 1), y_test_masses[:len(X_y_test_ttH)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
 ttZ_eval_generator = DataGenerator(np.concatenate((X_y_test_ttZ[:,:-10], X_y_test_ttZ[:,-6:]), axis = 1), y_test_masses[len(X_y_test_ttH):len(X_y_test_ttH)+len(X_y_test_ttZ)], n_features = num_features, batch_size=64, shuffle=False, augmentation = False, ceil = True)
 
+
+# We replace the two lines with comments on them with the values that have been produced by pygad
 ttH_y_pred = model.predict(ttH_eval_generator) # THIS IS WHERE WE PREDICT
 X_y = ttH_eval_generator.get_all()
 ttH_X_eval = X_y[0]

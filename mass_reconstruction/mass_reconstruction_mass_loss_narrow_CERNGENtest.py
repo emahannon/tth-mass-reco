@@ -1,6 +1,4 @@
 # %%
-# In this model we remove Adam's structure and replace it with a tf sequential
-# 	model of the same structure.
 import collections
 import csv
 import keras
@@ -24,8 +22,6 @@ from keras.regularizers import l2
 
 from keras.layers import Dense, LayerNormalization, BatchNormalization, Dropout, GaussianNoise, Activation, Add
 from keras import activations
-
-from tensorflow.keras import Sequential
 
 from ROOT import TFile, TLorentzVector
 
@@ -206,7 +202,7 @@ feature_names = list(feature_names.columns)
 # removing features based on permutation feature importance
 # here, we only remove features that are 0 or close to 0
 # EVERY TIME WE REMOVE/ADD FEATURES WE NEED TO RETRAIN THE SCALER
-bad_features = ['top W q2 pz', 'visible main E', 'hadr tau E', 'top W q2 E', 'visible antitop E', 'top W q1 E', 'antitop b E', 'top b E', 'antitop lepton E', 'top E', 'main lepton E', 'true main px', 'true main py', 'top W E', 'antitop b pz', 'anti top b and main lep delta R', 'antitop b and anti top lep delta R', 'top b pz', 'q1 and q2 delta R', 'top pz', 'top py', 'top and antitop delta R', 'antitop lepton pz']
+bad_features = ['top W q2 pz', 'visible main E', 'hadr tau E', 'top W q2 E', 'visible antitop E', 'top W q1 E', 'antitop b E', 'top b E', 'antitop lepton E', 'top E', 'main lepton E', 'true main px', 'true main py', 'top W E', 'antitop b pz', 'anti top b and main lep delta R', 'antitop b and anti top lep delta R']
 temp = set(bad_features)
 index_bad_features = [i for i, val in enumerate(feature_names) if val in temp]
 feature_names = np.delete(feature_names, index_bad_features)
@@ -298,13 +294,13 @@ y_train_masses = y_train_masses[1:,:]
 # y_scaler = StandardScaler()
 # X_scaler = X_scaler.fit(X_train)
 # y_scaler = y_scaler.fit(y_train_masses)
-#
+
 # f = open("../scaler_params/X_scaler_mass_reco_narrow.csv", "w")
 # writer = csv.writer(f)
 # writer.writerow(X_scaler.mean_)
 # writer.writerow(X_scaler.scale_)
 # f.close()
-#
+
 # f = open("../scaler_params/y_scaler_higgs_masses_narrow.csv", "w")
 # writer = csv.writer(f)
 # writer.writerow(y_scaler.mean_)
@@ -351,51 +347,9 @@ def baseline_model(num_features):
 def scheduler(epoch, lr):
 	return lr * 0.99
 
-
-
-
-# tf sequential model (I only pray some of the code I write today will work)
-model = Sequential()
-# first layer
-model.add(Dropout(0.2, input_shape = (num_features,) ))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# second layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# third layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# fourth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# fifth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# sixth layer
-model.add(Dropout(0.2))
-model.add(Dense(10*num_features))
-model.add(Activation(activations.relu))
-
-# seventh layer
-model.add(Dropout(0.2))
-model.add(Dense(1, activation='linear'))
-
-model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
-model.summary()
-
 # %%
 """ Training. Callbacks used are learning rate decay and early stopping. """
-# model = baseline_model(num_features)
+model = baseline_model(num_features)
 callback1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 callback2 = tf.keras.callbacks.LearningRateScheduler(scheduler)
 history = model.fit(x=train_generator, validation_data = val_generator, epochs=300, verbose=1, callbacks = [callback1, callback2])
@@ -422,28 +376,28 @@ print(feature_nums)
 # print(np.argwhere(np.isnan(y_train_masses)))
 
 
-# FEATURE IMPORTANCES
-# results = permutation_importance(model, X_train, y_train_masses, scoring='neg_mean_squared_error', n_repeats=50)
-# importances = results.importances_mean
-#
-# print(importances.dtype)
-# print(importances)
-# print(importances.shape)
-# print(len(feature_names))
-# print(feature_names)
-# importances_pd = pd.DataFrame(data={
-# 	'Attribute': feature_names,
-# 	'Importance': importances
-# })
-# importances_pd = importances_pd.sort_values(by='Importance', ascending=False)
-# print(importances_pd.Importance)
-# plt.bar(x=importances_pd['Attribute'], height=importances_pd['Importance'], color='#087E8B')
-# # plt.bar([x for x in range(len(importances))], importances)
-# plt.title('Feature Importances Obtained by Permutation', size=10)
-# plt.xticks(fontsize=5, rotation='vertical')
-# # plt.subplots_adjust(bottom=0.15)
-# plt.savefig('figures/PA_FeatureImportance.pdf', bbox_inches="tight")
-# print(feature_names)
+
+results = permutation_importance(model, X_train, y_train_masses, scoring='neg_mean_squared_error', n_repeats=50)
+importances = results.importances_mean
+
+print(importances.dtype)
+print(importances)
+print(importances.shape)
+print(len(feature_names))
+print(feature_names)
+importances_pd = pd.DataFrame(data={
+	'Attribute': feature_names,
+	'Importance': importances
+})
+importances_pd = importances_pd.sort_values(by='Importance', ascending=False)
+print(importances_pd.Importance)
+plt.bar(x=importances_pd['Attribute'], height=importances_pd['Importance'], color='#087E8B')
+# plt.bar([x for x in range(len(importances))], importances)
+plt.title('Feature Importances Obtained by Permutation', size=10)
+plt.xticks(fontsize=5, rotation='vertical')
+# plt.subplots_adjust(bottom=0.15)
+plt.savefig('figures/PA_FeatureImportance.pdf', bbox_inches="tight")
+print(feature_names)
 
 # %%
 """ Training history plot. """
@@ -607,8 +561,6 @@ plt.legend([legend_h, legend_bg, legend_weighted])
 plt.grid()
 plt.savefig("../figures/mass_histo_narrow_separation_btags.pdf")
 plt.show()
-# separation S percentage
-print("Separation: ")
 print(np.max(h_weight*correct_h + bg_weight*correct_bg))
 
 # %%
