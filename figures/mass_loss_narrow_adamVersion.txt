@@ -1,0 +1,165 @@
+georg@DESKTOP-CMP7CC3:/mnt/c/Users/georg/Documents/GitHub/tth-mass-reco/mass_reconstruction$ python3 mass_reconstruction_mass_loss_narrowAdamVersion.py
+2023-05-08 17:57:49.495163: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:49.495226: I tensorflow/stream_executor/cuda/cudart_stub.cc:29] Ignore above cudart dlerror if you do not have a GPU set up on your machine.
+end on epoch end
+end on epoch end
+end on epoch end
+2023-05-08 17:57:59.121442: I tensorflow/compiler/jit/xla_cpu_device.cc:41] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2023-05-08 17:57:59.156146: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcuda.so.1
+2023-05-08 17:57:59.640686: E tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:927] could not open file to read NUMA node: /sys/bus/pci/devices/0000:01:00.0/numa_node
+Your kernel may have been built without NUMA support.
+2023-05-08 17:57:59.640809: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1720] Found device 0 with properties:
+pciBusID: 0000:01:00.0 name: NVIDIA GeForce GTX 1650 Ti computeCapability: 7.5
+coreClock: 1.485GHz coreCount: 16 deviceMemorySize: 4.00GiB deviceMemoryBandwidth: 178.84GiB/s
+2023-05-08 17:57:59.641120: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudart.so.11.0'; dlerror: libcudart.so.11.0: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.641340: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcublas.so.11'; dlerror: libcublas.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.641592: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcublasLt.so.11'; dlerror: libcublasLt.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.641856: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcufft.so.10'; dlerror: libcufft.so.10: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.642129: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcurand.so.10'; dlerror: libcurand.so.10: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.642447: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcusolver.so.10'; dlerror: libcusolver.so.10: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.642716: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcusparse.so.11'; dlerror: libcusparse.so.11: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.643001: W tensorflow/stream_executor/platform/default/dso_loader.cc:60] Could not load dynamic library 'libcudnn.so.8'; dlerror: libcudnn.so.8: cannot open shared object file: No such file or directory; LD_LIBRARY_PATH: /home/georg/root/lib
+2023-05-08 17:57:59.643112: W tensorflow/core/common_runtime/gpu/gpu_device.cc:1757] Cannot dlopen some GPU libraries. Please make sure the missing libraries mentioned above are installed properly if you would like to use GPU. Follow the guide at https://www.tensorflow.org/install/gpu for how to download and setup the required libraries for your platform.
+Skipping registering GPU devices...
+2023-05-08 17:57:59.643663: I tensorflow/core/platform/cpu_feature_guard.cc:142] This TensorFlow binary is optimized with oneAPI Deep Neural Network Library (oneDNN) to use the following CPU instructions in performance-critical operations:  AVX2 FMA
+To enable them in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-05-08 17:57:59.647397: I tensorflow/compiler/jit/xla_gpu_device.cc:99] Not creating XLA devices, tf_xla_enable_xla_devices not set
+2023-05-08 17:57:59.647546: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1261] Device interconnect StreamExecutor with strength 1 edge matrix:
+2023-05-08 17:57:59.647608: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1267]
+Model: "model"
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #
+=================================================================
+input_1 (InputLayer)         [(None, 66)]              0
+_________________________________________________________________
+dropout (Dropout)            (None, 66)                0
+_________________________________________________________________
+dense (Dense)                (None, 660)               44220
+_________________________________________________________________
+activation (Activation)      (None, 660)               0
+_________________________________________________________________
+dropout_1 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_1 (Dense)              (None, 660)               436260
+_________________________________________________________________
+activation_1 (Activation)    (None, 660)               0
+_________________________________________________________________
+dropout_2 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_2 (Dense)              (None, 660)               436260
+_________________________________________________________________
+activation_2 (Activation)    (None, 660)               0
+_________________________________________________________________
+dropout_3 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_3 (Dense)              (None, 660)               436260
+_________________________________________________________________
+activation_3 (Activation)    (None, 660)               0
+_________________________________________________________________
+dropout_4 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_4 (Dense)              (None, 660)               436260
+_________________________________________________________________
+activation_4 (Activation)    (None, 660)               0
+_________________________________________________________________
+dropout_5 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_5 (Dense)              (None, 660)               436260
+_________________________________________________________________
+activation_5 (Activation)    (None, 660)               0
+_________________________________________________________________
+dropout_6 (Dropout)          (None, 660)               0
+_________________________________________________________________
+dense_6 (Dense)              (None, 1)                 661
+=================================================================
+Total params: 2,226,181
+Trainable params: 2,226,181
+Non-trainable params: 0
+_________________________________________________________________
+2023-05-08 17:57:59.846987: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:116] None of the MLIR optimization passes are enabled (registered 2)
+2023-05-08 17:57:59.847630: I tensorflow/core/platform/profile_utils/cpu_utils.cc:112] CPU Frequency: 2591995000 Hz
+Epoch 1/300
+8/8 [==============================] - 4s 279ms/step - loss: 78.1470 - val_loss: 54.5888
+Epoch 2/300
+8/8 [==============================] - 1s 178ms/step - loss: 55.7589 - val_loss: 49.8427
+Epoch 3/300
+8/8 [==============================] - 1s 172ms/step - loss: 51.8319 - val_loss: 42.1659
+Epoch 4/300
+8/8 [==============================] - 2s 184ms/step - loss: 50.4169 - val_loss: 46.5542
+Epoch 5/300
+8/8 [==============================] - 1s 164ms/step - loss: 44.0838 - val_loss: 39.2963
+Epoch 6/300
+8/8 [==============================] - 2s 186ms/step - loss: 44.0582 - val_loss: 41.8142
+Epoch 7/300
+8/8 [==============================] - 1s 177ms/step - loss: 40.3502 - val_loss: 39.4727
+Epoch 8/300
+8/8 [==============================] - 1s 174ms/step - loss: 44.8216 - val_loss: 43.3917
+Epoch 9/300
+8/8 [==============================] - 1s 171ms/step - loss: 47.1368 - val_loss: 44.1184
+Epoch 10/300
+8/8 [==============================] - 1s 162ms/step - loss: 41.5773 - val_loss: 43.7573
+Epoch 11/300
+8/8 [==============================] - 1s 165ms/step - loss: 41.9870 - val_loss: 42.8298
+Epoch 12/300
+8/8 [==============================] - 1s 173ms/step - loss: 39.3991 - val_loss: 45.1895
+Epoch 13/300
+8/8 [==============================] - 1s 159ms/step - loss: 51.1252 - val_loss: 40.6953
+Epoch 14/300
+8/8 [==============================] - 1s 166ms/step - loss: 39.0595 - val_loss: 38.3654
+Epoch 15/300
+8/8 [==============================] - 1s 177ms/step - loss: 39.2103 - val_loss: 42.3509
+Epoch 16/300
+8/8 [==============================] - 1s 189ms/step - loss: 42.8830 - val_loss: 38.1751
+Epoch 17/300
+8/8 [==============================] - 2s 196ms/step - loss: 39.9656 - val_loss: 38.3199
+Epoch 18/300
+8/8 [==============================] - 2s 195ms/step - loss: 35.4212 - val_loss: 38.2563
+Epoch 19/300
+8/8 [==============================] - 1s 164ms/step - loss: 38.4112 - val_loss: 39.7575
+Epoch 20/300
+8/8 [==============================] - 1s 168ms/step - loss: 36.1745 - val_loss: 40.7435
+Epoch 21/300
+8/8 [==============================] - 1s 157ms/step - loss: 30.3504 - val_loss: 40.2753
+Epoch 22/300
+8/8 [==============================] - 1s 169ms/step - loss: 38.2494 - val_loss: 45.7914
+Epoch 23/300
+8/8 [==============================] - 2s 192ms/step - loss: 37.5868 - val_loss: 43.2342
+Epoch 24/300
+8/8 [==============================] - 1s 157ms/step - loss: 35.9875 - val_loss: 43.2058
+Epoch 25/300
+8/8 [==============================] - 1s 170ms/step - loss: 40.1775 - val_loss: 50.0360
+Epoch 26/300
+8/8 [==============================] - 2s 197ms/step - loss: 31.4843 - val_loss: 46.4293
+2023-05-08 17:58:42.013274: W tensorflow/python/util/util.cc:348] Sets are not currently considered sequences, but this may change in the future, so consider avoiding using them.
+end on epoch end
+end on epoch end
+81.82094 18.430332
+Separation
+63.85224274406333
+Applying ATLAS style settings
+ FCN=26.5553 FROM MIGRAD    STATUS=CONVERGED      98 CALLS          99 TOTAL
+                     EDM=5.922e-09    STRATEGY= 1      ERROR MATRIX ACCURATE
+  EXT PARAMETER                                   STEP         FIRST
+  NO.   NAME      VALUE            ERROR          SIZE      DERIVATIVE
+   1  Constant     2.48895e+01   2.71927e+00   4.77539e-03   4.37313e-05
+   2  Mean         8.45578e+01   4.56699e+00   3.01163e-03   7.93816e-05
+   3  Sigma        1.36668e+01   2.58455e+00   5.24341e-05   4.90052e-03
+Fit data is empty
+24.889460541014124
+84.55775065837379
+13.666792602278107
+Info in <TCanvas::Print>: pdf file ../figures/mass_histo_narrow_root_btags.pdf has been created
+georg@DESKTOP-CMP7CC3:/mnt/c/Users/georg/Documents/GitHub/tth-mass-reco/mass_reconstruction$
+
+
+
+
+
+
+
+
+
+
+
+
+
