@@ -39,7 +39,7 @@ import multiprocessing
 import concurrent.futures
 import concurrent
 from multiprocessing import Process
-from concurrent.futures import ProcessPoolExecutor 
+from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 import operator
@@ -427,21 +427,21 @@ y_train_masses = y_train_masses[1:,:]
 # BEGINNING OF PYGAD CODE
 
 def fitness_func(ga_instance, solution, sol_idx):
-    global data_inputs, data_outputs, keras_ga, model
+	global data_inputs, data_outputs, keras_ga, model
 
-    predictions = pygad.kerasga.predict(model=model,
-                                        solution=solution,
-                                        data=data_inputs)
+	predictions = pygad.kerasga.predict(model=model,
+										solution=solution,
+										data=data_inputs)
 
-    mse = tensorflow.keras.losses.MeanSquaredError()
-    mse_error = mse(data_outputs, predictions).numpy() + 0.00000001
-    solution_fitness = 1.0/mse_error
+	mse = tensorflow.keras.losses.MeanSquaredError()
+	mse_error = mse(data_outputs, predictions).numpy() + 0.00000001
+	solution_fitness = 1.0/mse_error
 
-    return solution_fitness
+	return solution_fitness
 
 def callback_generation(ga_instance):
-    print("Generation = {generation}".format(generation=ga_instance.generations_completed))
-    print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]))
+	print("Generation = {generation}".format(generation=ga_instance.generations_completed))
+	print("Fitness    = {fitness}".format(fitness=ga_instance.best_solution()[1]))
 
 #input_layer  = tensorflow.keras.layers.Input(1) # Changed 3 to 1
 #dense_layer1 = tensorflow.keras.layers.Dense(5, activation="relu")(input_layer)
@@ -476,9 +476,12 @@ dropout_7 = tensorflow.keras.layers.Dropout(0.2)(relu_6)
 output_layer = tensorflow.keras.layers.Dense(1, activation=tf.keras.activations.linear, kernel_regularizer=l2(0.001), bias_regularizer = l2(0.001))(dropout_7)
 
 model = tensorflow.keras.Model(inputs=input_layer, outputs=output_layer)
+model.compile(loss='mse', optimizer=optimizers.Adam(lr=0.0005, beta_1=0.9))
+model.summary()
+
 
 keras_ga = pygad.kerasga.KerasGA(model=model,
-                                 num_solutions=10)
+								 num_solutions=50)
 
 # Data inputs
 #data_inputs = numpy.array([[0.02, 0.1, 0.15],
@@ -496,15 +499,15 @@ data_inputs = X_train
 data_outputs = y_train_masses
 
 num_generations = 100 # Number of generations.
-num_parents_mating = 5 # Number of solutions to be selected as parents in the mating pool.
+num_parents_mating = 15 # Number of solutions to be selected as parents in the mating pool.
 initial_population = keras_ga.population_weights # Initial population of network weights
 
 ga_instance = pygad.GA(num_generations=num_generations,
-                       num_parents_mating=num_parents_mating,
-                       initial_population=initial_population,
-                       fitness_func=fitness_func,
-                       on_generation=callback_generation,
-                       stop_criteria = "saturate_7",
+					   num_parents_mating=num_parents_mating,
+					   initial_population=initial_population,
+					   fitness_func=fitness_func,
+					   on_generation=callback_generation,
+					   stop_criteria = "saturate_7",
 					   parallel_processing=10)
 
 ga_instance.run()
@@ -520,8 +523,8 @@ print("Index of the best solution : {solution_idx}".format(solution_idx=solution
 
 # Make prediction based on the best solution.
 predictions = pygad.kerasga.predict(model=model,
-                                    solution=solution,
-                                    data=X_test) # Changed from data inputs
+									solution=solution+1,
+									data=X_val) # Changed from data inputs X_test
 
 print("Predictions : \n", predictions)
 
